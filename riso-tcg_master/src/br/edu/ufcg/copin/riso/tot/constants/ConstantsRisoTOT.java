@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class ConstantsRisoTOT {
 
-	public static final String TAG_RISO_TEMPORAL = "</RISOTime>"; 
+	public static final String TAG_RISO_TEMPORAL = "</RISOTime>";
 	public static final String TAG_RISO_TEMPORAL_INI = "<RISOTime>";
 	
 	public static final String TAG_BEFORE = "<RISOTime type=D-EMT-Adv> X < ";
