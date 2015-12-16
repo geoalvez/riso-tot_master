@@ -22,13 +22,13 @@ public class GeraArquivoFinalRISOTaggerTT {
         ArrayList<String> arrayDeDatas = new ArrayList<String>();
 		
 //        String arquivoGeradoPeloRisoTT = "RussoJap.txt";
-        String arquivoGeradoPeloRisoTT = "Napoleon_final.txt";
+        String arquivoGeradoPeloRisoTT = "Napoleon_completo.txt";
         
 //		String saidaArquivoParaPosTagger = "RussoJap.txt";
-		String saidaArquivoParaPosTagger = "Napoleon_final.txt";
+		String saidaArquivoParaPosTagger = "Napoleon_completo.txt";
 		
 //		String arquivoGeradoPosTaggerParaLeituraDoTCG = "RussoJap.txt";
-		String arquivoGeradoPosTaggerParaLeituraDoTCG = "Napoleon_final.txt";
+		String arquivoGeradoPosTaggerParaLeituraDoTCG = "Napoleon_completo.txt";
 		
 
 //		String arquivoSaidaTCG = "saidaUnificada_RussoJap.txt";

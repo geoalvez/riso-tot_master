@@ -1704,7 +1704,7 @@ public class RisoTotMain2 {
 		        		
 		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data));
 
-		        		dataNormalizada = dataNormalizada.replaceAll(" > X < ", " < X <"); // corrige formato antigo e errado
+		        		dataNormalizada = dataNormalizada.replaceAll(" > X < ", " < X < "); // corrige formato antigo e errado
 		        		
 			        	line = line.concat(dataNormalizada);
 
@@ -1942,7 +1942,8 @@ public class RisoTotMain2 {
 		//nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\SaidaUnificadaExSlide.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_RussoJap.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_TesteProfessor.txt";
-		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
+//		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
+		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_Napoleon_final.txt";
 		
 		
 		
@@ -1950,17 +1951,17 @@ public class RisoTotMain2 {
 		//nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida_linhas\\26	.txt";
 		// 04_AmRevWarReduzida_entities
 //		caminhoArquivoEntidades = "C:\\Users\\george.marcelo.alves\\Dropbox\\SaidaMontyExtractor\\TesteProfessor_entities.txt";
-		caminhoArquivoEntidades = "C:\\Users\\george.marcelo.alves\\Dropbox\\SaidaMontyExtractor\\"+ args[3];
 		//caminhoArquivoEntidades = "C:\\Users\\george.marcelo.alves\\Dropbox\\SaidaMontyExtractor\\TestesProfessor_entities.txt";
 		
 		//caminhoArquivoEntidades = "C:\\Users\\george.marcelo.alves\\Dropbox\\SaidaMontyExtractor\\04_AmRevWarReduzida_entities.txt";
 		// Para rodar esse modo de execucao, o montylingua devera ter extraido os termos do texto previamente.
 		// Lembrar de alterar o nome dos arquivos e seus respectivos caminhos.
 		
-		if (args.length > 0){
+		if (args.length >= 3){
 			if (args[0].equals("-extraiTempoEntidades")){
 //				try {
 //					leituraDoArquivo(nomeArquivo);
+					caminhoArquivoEntidades = "C:\\Users\\george.marcelo.alves\\Dropbox\\SaidaMontyExtractor\\"+ args[3];
 					carregaEntidadestexto(caminhoArquivoEntidades);
 					
 					int qtdEntidades = listaEntidadesTexto.size();
@@ -2034,6 +2035,7 @@ public class RisoTotMain2 {
 //			}
 			// sem leitura do arquivo - FIM
 
+			caminhoArquivoEntidades = "C:\\Users\\george.marcelo.alves\\Dropbox\\SaidaMontyExtractor\\"+ args[0];
 				
 			// com leitura do arquivo - INICIO 
 			try {

@@ -27,17 +27,21 @@ public class RisoTcgUtil {
 	public static String inverteParaDDMMYYYY (String dataFormatada){
 		String saidaInvertida = "";
 		
-		String[] campos = dataFormatada.split("-");
 		
-		if (campos.length == 3){
-			saidaInvertida = campos[2] + "-" + campos[1] +"-"+campos[0];
+		String[] campos = dataFormatada.split("-");
+		if (campos[0].length() == 2 || campos[0].length() == 3){
+			return dataFormatada;
+		}else{
+			if (campos.length == 3){
+				saidaInvertida = campos[2] + "-" + campos[1] +"-"+campos[0];
+			}
 		}
 		
 		
 		return saidaInvertida;
 	}
 	
-	public static String[] MESES = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMPER", "OCTOBER", "NOVEMBER", "DECEMBER"};
+	public static String[] MESES = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
 	
 	public static String JANUARY = "01";
 	public static String FEBRUARY = "02";

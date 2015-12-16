@@ -42,5 +42,11 @@ public class ConstantsRisoTOT {
 	public static final String CAMINHO_ARQUIVO_ENTIDADES_TEMPORALIZADAS = "C:\\workspace_mestrado\\RisoTemporalTagger_soprasubir\\padroes\\datas_especiais.xml";
 	
 	public static final String[] MESES = {"", "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"};
+
+	public static final String REGEX_MESES = "(january|february|march|april|may|june|july|august|september|october|november|december)";
+	public static final String REGEX_DIAS = "\\d{4}";
+
+	public static final String REGEX_MES_ANO = "^" + REGEX_MESES + " " + REGEX_DIAS + "$";
+	
 	
 }

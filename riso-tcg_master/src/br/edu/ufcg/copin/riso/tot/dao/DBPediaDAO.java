@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import br.edu.ufcg.copin.riso.tot.constants.ConstantsRisoTOT;
 import br.edu.ufcg.copin.riso.tot.entities.Cidade;
@@ -285,100 +287,151 @@ public class DBPediaDAO {
 			//"2014-09-12 to 2014-09-12"
 			if (!data.isEmpty()){
 				String dataFormatada1 = data.substring(0, 10);
+				
+				String data1Aux = "";
+				
+				if (data.indexOf(" < X < ") >= 0){
+					data1Aux = data.split(" < X < ")[0];
+				}else if (data.indexOf("X >") >= 0){
+					data1Aux = data.split("X > ")[0];						
+				}else if (data.indexOf("X <") >= 0){
+					data1Aux = data.split("X <")[0];						
+					
+				}else{
+					data1Aux = data;
+				}
+				data1Aux = data1Aux.split("\\^\\^")[0];
+				data1Aux = data1Aux.replace("@en", "");
+				
+				
 				dataFormatada1 = dataFormatada1.split("\\^\\^")[0];
 				
 				dataFormatada1 = dataFormatada1.replace("@en", "");
 				
+				
 				if (dataFormatada1.split("-").length == 1){
 					
-					if (dataFormatada1.split(" ").length == 1){
-						if (dataFormatada1.length() >= 8){
-							dataFormatada1 = dataFormatada1.substring(0, 4)+"-"+dataFormatada1.substring(4, 6)+"-"+dataFormatada1.substring(6, 8);								
-						}else{
-							dataFormatada1 = dataFormatada1+"-[?]-[?]";															
-						}
-					}else{
-							dataFormatada1 = data.split(" < X < ")[0];
-							dataFormatada1 = dataFormatada1.replace("@en", "");
+					 Pattern p = Pattern.compile(ConstantsRisoTOT.REGEX_MES_ANO);
+					 Matcher m = p.matcher(data1Aux.toLowerCase());
+					 boolean formatoReconhecido = m.matches();
+					 
+					 if (formatoReconhecido){
+						 dataFormatada1 = "[?]-"+RisoTcgUtil.getNumMes(data1Aux.split(" ")[0].toLowerCase()) + "-"+data1Aux.split(" ")[1];
+					 }else{
+							if (dataFormatada1.split(" ").length == 1){
+								if (dataFormatada1.length() >= 8){
+									dataFormatada1 = dataFormatada1.substring(0, 4)+"-"+dataFormatada1.substring(4, 6)+"-"+dataFormatada1.substring(6, 8);								
+								}else{
+									dataFormatada1 = dataFormatada1+"-[?]-[?]";															
+								}
+							}else{
+									dataFormatada1 = data.split(" < X < ")[0];
+									dataFormatada1 = dataFormatada1.replace("@en", "");
 
+									if (!obtemDemaisFormatos(dataFormatada1).isEmpty()){
+										dataFormatada1 = obtemDemaisFormatos(dataFormatada1);
+									}else{
+										if (dataFormatada1.split(" ").length > 1){
+											String ano = "[?]";
+											String mes = "[?]";
+											String dia = "[?]";
+											
+											String[] camposAux = dataFormatada1.split(" ");
+											for (int j = 0; j < camposAux.length; j++ ){
+												boolean ehAno = false;
+												boolean ehMes = false;
+												boolean ehDia = false;
+												for (int k = 0; k < ConstantsRisoTOT.MESES.length; k++){
+													if (camposAux[j].toLowerCase().equals(ConstantsRisoTOT.MESES[k])){
+														ehMes = true;
+														mes = new Integer(k).toString();
+													}
+													
+												}
+												if (ehMes){
+													continue;
+												}
+												if (!ehMes){
+													boolean mesOk = false;
+													try{
+														Integer mesAux = new Integer(camposAux[j]);
+														if (mesAux <= 12){
+															mesOk = true;
+															mes = camposAux[j];
+															ehMes= true;
+														}
+													}catch (Exception e){
+														mesOk = false;
+													}
+												}
+												if (ehMes){
+													continue;
+												}
+												if (!ehMes){
+													boolean diaOk = false;
+													try{
+														Integer diaAux = new Integer(camposAux[j]);
+														if (diaAux <= 31){
+															diaOk = true;
+															ehDia = true;
+															dia = camposAux[j];
+														}
+													}catch (Exception e){
+														diaOk = false;
+													}
+												}
+												if (ehDia){
+													continue;
+												}
+												if (!ehDia){
+													ano = camposAux[j];
+												}
+												
+
+											}
+											dataFormatada1 = ano = "-" + mes + "-" + dia;
+										}
+										
+									}
+							}
+						 
+					 }
+					 
+					
+				}else{
+					
+					if (data.indexOf(" < X < ") >= 0){
+						dataFormatada1 = data.split(" < X < ")[0];
+					}else if (data.indexOf("X >") >= 0){
+						dataFormatada1 = data.split("X > ")[0];						
+					}else if (data.indexOf("X <") >= 0){
+						dataFormatada1 = data.split("X <")[0];						
+						
+					}
+					
+					dataFormatada1 = dataFormatada1.split("\\^\\^")[0];
+					dataFormatada1 = dataFormatada1.replace("@en", "");
+					
+					 Pattern p = Pattern.compile(ConstantsRisoTOT.REGEX_MESES);
+					 Matcher m = p.matcher(dataFormatada1);
+					 boolean formatoReconhecido = m.matches();
+					 
+					 if (formatoReconhecido){
+						 dataFormatada1 = "[?]-"+RisoTcgUtil.getNumMes(dataFormatada1).split(" ")[0] + "-"+RisoTcgUtil.getNumMes(dataFormatada1).split(" ")[1];
+					 }else{
+						 
 							if (!obtemDemaisFormatos(dataFormatada1).isEmpty()){
 								dataFormatada1 = obtemDemaisFormatos(dataFormatada1);
 							}else{
-								if (dataFormatada1.split(" ").length > 1){
-									String ano = "[?]";
-									String mes = "[?]";
-									String dia = "[?]";
-									
-									String[] camposAux = dataFormatada1.split(" ");
-									for (int j = 0; j < camposAux.length; j++ ){
-										boolean ehAno = false;
-										boolean ehMes = false;
-										boolean ehDia = false;
-										for (int k = 0; k < ConstantsRisoTOT.MESES.length; k++){
-											if (camposAux[j].toLowerCase().equals(ConstantsRisoTOT.MESES[k])){
-												ehMes = true;
-												mes = new Integer(k).toString();
-											}
-											
-										}
-										if (ehMes){
-											continue;
-										}
-										if (!ehMes){
-											boolean mesOk = false;
-											try{
-												Integer mesAux = new Integer(camposAux[j]);
-												if (mesAux <= 12){
-													mesOk = true;
-													mes = camposAux[j];
-													ehMes= true;
-												}
-											}catch (Exception e){
-												mesOk = false;
-											}
-										}
-										if (ehMes){
-											continue;
-										}
-										if (!ehMes){
-											boolean diaOk = false;
-											try{
-												Integer diaAux = new Integer(camposAux[j]);
-												if (diaAux <= 31){
-													diaOk = true;
-													ehDia = true;
-													dia = camposAux[j];
-												}
-											}catch (Exception e){
-												diaOk = false;
-											}
-										}
-										if (ehDia){
-											continue;
-										}
-										if (!ehDia){
-											ano = camposAux[j];
-										}
-										
-
+								String[] camposAux = dataFormatada1.split("-");
+								if (camposAux.length == 3){
+									if (camposAux[0].length() <= 2){
+										dataFormatada1 = camposAux[2] + "-" + camposAux[1] + "-" + camposAux[0];
 									}
-									dataFormatada1 = ano = "-" + mes + "-" + dia;
 								}
-								
 							}
-					}
+					 }
 					
-				}else{
-					if (!obtemDemaisFormatos(dataFormatada1).isEmpty()){
-						dataFormatada1 = obtemDemaisFormatos(dataFormatada1);
-					}else{
-						String[] camposAux = dataFormatada1.split("-");
-						if (camposAux.length == 3){
-							if (camposAux[0].length() <= 2){
-								dataFormatada1 = camposAux[2] + "-" + camposAux[1] + "-" + camposAux[0];
-							}
-						}
-					}
 					
 				}
 				
@@ -394,98 +447,123 @@ public class DBPediaDAO {
 					dataFormatada2 = dataFormatada2.split("\\^\\^")[0];
 					dataFormatada2 = dataFormatada2.replace("@en", "");
 
-					if (dataFormatada2.split("-").length == 1){
-						
-						if (dataFormatada2.split(" ").length == 1){
-							if (dataFormatada2.length() >= 8){
-								dataFormatada2 = dataFormatada2.substring(0, 4)+"-"+dataFormatada2.substring(4, 6)+"-"+dataFormatada2.substring(6, 8);								
-							}else{
-								dataFormatada2 = dataFormatada2 + "-[?]-[?]";
-							}
-						}else{
-								dataFormatada2 = data.split(" < X < ")[0];
-								dataFormatada2 = dataFormatada1.replace("@en", "");
-
-								if (!obtemDemaisFormatos(dataFormatada2).isEmpty()){
-									dataFormatada2 = obtemDemaisFormatos(dataFormatada2);
-								}else{
-									if (dataFormatada2.split(" ").length > 1){
-										String ano = "[?]";
-										String mes = "[?]";
-										String dia = "[?]";
-										
-										String[] camposAux = dataFormatada2.split(" ");
-										for (int j = 0; j < camposAux.length; j++ ){
-											boolean ehAno = false;
-											boolean ehMes = false;
-											boolean ehDia = false;
-											for (int k = 0; k < ConstantsRisoTOT.MESES.length; k++){
-												if (camposAux[j].toLowerCase().equals(ConstantsRisoTOT.MESES[k])){
-													ehMes = true;
-													mes = new Integer(k).toString();
-												}
-												
-											}
-											if (ehMes){
-												continue;
-											}
-											if (!ehMes){
-												boolean mesOk = false;
-												try{
-													Integer mesAux = new Integer(camposAux[j]);
-													if (mesAux <= 12){
-														mesOk = true;
-														mes = camposAux[j];
-														ehMes= true;
-													}
-												}catch (Exception e){
-													mesOk = false;
-												}
-											}
-											if (ehMes){
-												continue;
-											}
-											if (!ehMes){
-												boolean diaOk = false;
-												try{
-													Integer diaAux = new Integer(camposAux[j]);
-													if (diaAux <= 31){
-														diaOk = true;
-														ehDia = true;
-														dia = camposAux[j];
-													}
-												}catch (Exception e){
-													diaOk = false;
-												}
-											}
-											if (ehDia){
-												continue;
-											}
-											if (!ehDia){
-												ano = camposAux[j];
-											}
-											
-
-										}
-										dataFormatada2 = ano = "-" + mes + "-" + dia;
-									}
-									
-								}
-						}
+					String data2Aux = "";
+					
+					if (data.indexOf(" < X < ") >= 0){
+						data2Aux = data.split(" < X < ")[0];
+					}else if (data.indexOf("X >") >= 0){
+						data2Aux = data.split("X > ")[0];						
+					}else if (data.indexOf("X <") >= 0){
+						data2Aux = data.split("X <")[0];						
 						
 					}else{
-						if (!obtemDemaisFormatos(dataFormatada2).isEmpty()){
-							dataFormatada2 = obtemDemaisFormatos(dataFormatada1);
-						}else{
-							String[] camposAux = dataFormatada2.split("-");
-							if (camposAux.length == 3){
-								if (camposAux[0].length() <= 2){
-									dataFormatada2 = camposAux[2] + "-" + camposAux[1] + "-" + camposAux[0];
-								}
-							}
-						}
-						
+						data2Aux = data;
 					}
+					data2Aux = data2Aux.split("\\^\\^")[0];
+					data2Aux = data2Aux.replace("@en", "");
+					
+					 Pattern p = Pattern.compile(ConstantsRisoTOT.REGEX_MES_ANO);
+					 Matcher m = p.matcher(data2Aux.toLowerCase());
+					 boolean formatoReconhecido = m.matches();
+					 
+					 if (formatoReconhecido){
+						 dataFormatada2 = "[?]-"+RisoTcgUtil.getNumMes(data2Aux.split(" ")[0].toLowerCase()) + "-"+data2Aux.split(" ")[1];
+					 }else{
+							if (dataFormatada2.split("-").length == 1){
+								
+								if (dataFormatada2.split(" ").length == 1){
+									if (dataFormatada2.length() >= 8){
+										dataFormatada2 = dataFormatada2.substring(0, 4)+"-"+dataFormatada2.substring(4, 6)+"-"+dataFormatada2.substring(6, 8);								
+									}else{
+										dataFormatada2 = dataFormatada2 + "-[?]-[?]";
+									}
+								}else{
+										dataFormatada2 = data.split(" < X < ")[0];
+										dataFormatada2 = dataFormatada1.replace("@en", "");
+
+										if (!obtemDemaisFormatos(dataFormatada2).isEmpty()){
+											dataFormatada2 = obtemDemaisFormatos(dataFormatada2);
+										}else{
+											if (dataFormatada2.split(" ").length > 1){
+												String ano = "[?]";
+												String mes = "[?]";
+												String dia = "[?]";
+												
+												String[] camposAux = dataFormatada2.split(" ");
+												for (int j = 0; j < camposAux.length; j++ ){
+													boolean ehAno = false;
+													boolean ehMes = false;
+													boolean ehDia = false;
+													for (int k = 0; k < ConstantsRisoTOT.MESES.length; k++){
+														if (camposAux[j].toLowerCase().equals(ConstantsRisoTOT.MESES[k])){
+															ehMes = true;
+															mes = new Integer(k).toString();
+														}
+														
+													}
+													if (ehMes){
+														continue;
+													}
+													if (!ehMes){
+														boolean mesOk = false;
+														try{
+															Integer mesAux = new Integer(camposAux[j]);
+															if (mesAux <= 12){
+																mesOk = true;
+																mes = camposAux[j];
+																ehMes= true;
+															}
+														}catch (Exception e){
+															mesOk = false;
+														}
+													}
+													if (ehMes){
+														continue;
+													}
+													if (!ehMes){
+														boolean diaOk = false;
+														try{
+															Integer diaAux = new Integer(camposAux[j]);
+															if (diaAux <= 31){
+																diaOk = true;
+																ehDia = true;
+																dia = camposAux[j];
+															}
+														}catch (Exception e){
+															diaOk = false;
+														}
+													}
+													if (ehDia){
+														continue;
+													}
+													if (!ehDia){
+														ano = camposAux[j];
+													}
+													
+
+												}
+												dataFormatada2 = ano = "-" + mes + "-" + dia;
+											}
+											
+										}
+								}
+								
+							}else{
+								if (!obtemDemaisFormatos(dataFormatada2).isEmpty()){
+									dataFormatada2 = obtemDemaisFormatos(dataFormatada1);
+								}else{
+									String[] camposAux = dataFormatada2.split("-");
+									if (camposAux.length == 3){
+										if (camposAux[0].length() <= 2){
+											dataFormatada2 = camposAux[2] + "-" + camposAux[1] + "-" + camposAux[0];
+										}
+									}
+								}
+								
+							}
+						 
+					 }
+					
 					
 				}
 				
@@ -794,11 +872,27 @@ public class DBPediaDAO {
 				
 				
 				if (qtdResult == 0){
-					String sql = "INSERT INTO entidadesnomesalt VALUES ('"+nomeEntidade+"','"+nomeAlternativo+"')";
+					String sql = "INSERT INTO entidadesnomesalt (nome_entidade, nomealt) VALUES ('"+nomeEntidade+"','"+nomeAlternativo+"')";
 					stm.execute(sql);
 				
 				}
 				
+
+				
+				pstm = con.prepareStatement("SELECT COUNT(*) qts_result FROM entidadesnomesalt WHERE nome_entidade = '"+nomeEntidade+"' and nomealt = '"+nomeEntidade+"' ");
+
+				rs = pstm.executeQuery();
+				qtdResult = 0;
+				while (rs.next()){
+					qtdResult = rs.getInt("qts_result");	
+				}
+				
+				
+				if (qtdResult == 0){
+					String sql = "INSERT INTO entidadesnomesalt (nome_entidade, nomealt) VALUES ('"+nomeEntidade+"','"+nomeEntidade+"')";
+					stm.execute(sql);
+				
+				}
 				
 
 			}catch(SQLException e){
