@@ -217,8 +217,10 @@ public class DBPediaDAO {
 	
 	
 	public static void recuperaEInsereDatasEntidadesEventos (String entidadeTexto) throws Exception{
+		
 		ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidadeTexto);
-
+		
+		
 		ArrayList<String> listaTempoEntidade = montaEstruturaTemporal(entidadeTexto, listaEntidadesTemporalizadas);
 		
 		
@@ -800,7 +802,7 @@ public class DBPediaDAO {
 	}
 
 	
-	public static String buscaDataNormalizada(String dataNaoNormalizada){
+	public static String buscaDataNormalizada(String dataNaoNormalizada, String nomeArquivo){
 		
 		PreparedStatement pstm = null;
 		Statement stm = null;
@@ -812,13 +814,34 @@ public class DBPediaDAO {
 				try{
 						
 					con = PostgresConnectionManager.getInstance().getConnection();
+					
+					// create table documentinfo(id_documento int, nome_documento varchar(1000));
+
 					stm = con.createStatement();
 					// stm = DBConexion.getInstance().getConnection().createStatement();
-					pstm = con.prepareStatement("SELECT datanormalizada FROM datanorm WHERE data = '"+dataNaoNormalizada+"' ");
+					pstm = con.prepareStatement("SELECT id_documento from documentinfo where nome_documento =  '"+nomeArquivo+"' ");
+					rs = pstm.executeQuery();
+					int idDocumento = 0;
+					while (rs.next()){
+						
+						idDocumento = rs.getInt("id_documento");
+						break;
+					}
+					
+					
+					stm = con.createStatement();
+					// stm = DBConexion.getInstance().getConnection().createStatement();
+					pstm = con.prepareStatement("SELECT datanormalizada, seq_frase FROM datanorm WHERE data = '"+dataNaoNormalizada+"' and flg_extr_tm is null and id_documento = "+idDocumento+" order by seq_frase asc");
 							rs = pstm.executeQuery();
 					while (rs.next()){
 						
-						retorno = rs.getString("datanormalizada");	
+						retorno = rs.getString("datanormalizada");
+						
+						int idFrase = rs.getInt("seq_frase");
+						
+						String sql = "UPDATE datanorm set flg_extr_tm = 'X' where seq_frase = "+idFrase+" ";
+						stm.execute(sql);
+						break;
 					}
 						
 						
@@ -843,6 +866,98 @@ public class DBPediaDAO {
 
 		
 	}
+
+	
+	public static ArrayList buscaDataEntidades(String entidade){
+		
+		PreparedStatement pstm = null;
+		Statement stm = null;
+		Connection con = null;
+		java.sql.ResultSet rs = null;
+		
+		ArrayList retorno = new ArrayList();
+		System.out.println("Buscando datas da entidade ["+entidade+"]");
+		ArrayList datas = (ArrayList)RisoTotMain2.entidadesDbpedia.get(entidade);
+		
+		if (datas != null ){
+			System.out.println("Entidade ["+entidade+"] ja recuperada");
+			retorno = datas;
+		}else{
+			try{
+				
+				con = PostgresConnectionManager.getInstance().getConnection();
+						
+				// create table documentinfo(id_documento int, nome_documento varchar(1000));
+
+				System.out.println("Buscando datas da entidade ["+entidade+"]");
+
+				stm = con.createStatement();
+				// stm = DBConexion.getInstance().getConnection().createStatement();
+				pstm = con.prepareStatement("SELECT de.* from dataentidades de,entidadesnomesalt ena  where ena.nomealt = '"+entidade+"' and ena.nome_entidade = de.nome_entidade");
+				rs = pstm.executeQuery();
+				while (rs.next()){
+					retorno.add(rs.getString("data"));
+				}
+				
+							
+			}catch(SQLException e){
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally{
+				DBConexion.closeStatement(stm);  
+				DBConexion.closePreparedStatement(pstm);  
+				DBConexion.closeResult(rs);  
+				DBConexion.closeConnection(con);
+				
+			}
+			
+		}
+
+		
+		return retorno;
+
+		
+	}
+	
+	public static void setFlgExtrTMNull(int idDocumento){
+		
+		PreparedStatement pstm = null;
+		Statement stm = null;
+		Connection con = null;
+		java.sql.ResultSet rs = null;
+				try{
+				try{
+						
+					con = PostgresConnectionManager.getInstance().getConnection();
+					stm = con.createStatement();
+					
+					
+					String sql = "UPDATE datanorm set flg_extr_tm = NULL where id_documento = "+idDocumento+" ";
+					stm.execute(sql);
+						
+						
+				}catch(SQLException e){
+					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally{
+					DBConexion.closeStatement(stm);  
+					DBConexion.closePreparedStatement(pstm);  
+					DBConexion.closeResult(rs);  
+					DBConexion.closeConnection(con);
+					
+				}
+
+		}catch (Exception e){
+			System.out.println("Erro ao setar o valor do campo flg_extr_tm para nulo para os registros de id_documento  --> " + idDocumento);
+		}
+		
+		
+	}
+	
 	
 	public static void insereEntidadesNomesAlternativos (String nomeEntidade, String nomeAlternativo){
 		Statement stm = null;
@@ -951,31 +1066,44 @@ public class DBPediaDAO {
 	
 	public static ArrayList<EntidadeEvento> getDatasEntidadesEventos(String label){
 		
-		ArrayList retorno = new ArrayList();
-		boolean processou = false;
-		while (!processou){
-			try{
-				System.out.println("entidade: --> "+label); // george remover;
-				retorno = getDatasInstituicoesEmGeral(label);
-				if (retorno.isEmpty()){
-					retorno = getDatasCidades(label);
+		ArrayList aux = (ArrayList) RisoTotMain2.entidadesDbpedia.get(label);
+		ArrayList retorno;
+		if (null == aux){
+			retorno = new ArrayList();
+			boolean processou = false;
+			while (!processou){
+				try{
+					System.out.println("entidade: --> "+label); // george remover;
+					System.out.println("getDatasInstituicoesEmGeral"); // george remover;
+					retorno = getDatasInstituicoesEmGeral(label);
 					if (retorno.isEmpty()){
-						retorno = getDatasEmpresas(label);
+						System.out.println("getDatasCidades"); // george remover;
+						retorno = getDatasCidades(label);
 						if (retorno.isEmpty()){
-							retorno = getDatasEstados(label);
+							System.out.println("getDatasEmpresas"); // george remover;
+							retorno = getDatasEmpresas(label);
 							if (retorno.isEmpty()){
-								retorno = getDatasFeriados(label);
+								System.out.println("getDatasEstados"); // george remover;
+								retorno = getDatasEstados(label);
 								if (retorno.isEmpty()){
-									retorno = getDatasLocais(label);
+									System.out.println("getDatasFeriados"); // george remover;
+									retorno = getDatasFeriados(label);
 									if (retorno.isEmpty()){
-										retorno = getDatasPaises(label);
+										System.out.println("getDatasLocais"); // george remover;
+										retorno = getDatasLocais(label);
 										if (retorno.isEmpty()){
-											retorno = getDatasPessoa(label);
-											if(retorno.isEmpty()){
-												retorno = getDatasEventos(label);
-												ArrayList<EntidadeEvento> arrayAux = getDatasEventos2(label);
-												if (!arrayAux.isEmpty()){
-													retorno.addAll(arrayAux);
+											System.out.println("getDatasPaises"); // george remover;
+											retorno = getDatasPaises(label);
+											if (retorno.isEmpty()){
+												System.out.println("getDatasPessoa"); // george remover;
+												retorno = getDatasPessoa(label);
+												if(retorno.isEmpty()){
+													System.out.println("getDatasEventos"); // george remover;
+													retorno = getDatasEventos(label);
+													ArrayList<EntidadeEvento> arrayAux = getDatasEventos2(label);
+													if (!arrayAux.isEmpty()){
+														retorno.addAll(arrayAux);
+													}
 												}
 											}
 										}
@@ -984,13 +1112,20 @@ public class DBPediaDAO {
 							}
 						}
 					}
+					processou = true;
+					RisoTotMain2.entidadesDbpedia.put(label, retorno);
+				}catch (Exception e){
+					processou = false;
+					System.out.println("Erro na busca das datas das entidades. Será feita uma nova tentativa.");
 				}
-				processou = true;
-			}catch (Exception e){
-				processou = false;
-				System.out.println("Erro na busca das datas das entidades. Será feita uma nova tentativa.");
+			
 			}
 			
+		}else{
+			System.out.println("entidade: --> "+label); // george remover;
+			
+			retorno = aux;
+			System.out.println("Entidade já processada!");
 		}
 		
 		return retorno;

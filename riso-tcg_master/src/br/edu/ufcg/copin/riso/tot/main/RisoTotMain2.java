@@ -324,11 +324,13 @@ public class RisoTotMain2 {
 				if (listaEntidadesDBPedia.contains(entidadeSemTag)){
 					
 					if (recuperaDataDE){
-						ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidadeSemTag);
-						ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidadeSemTag, listaEntidadesTemporalizadas);
-						ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+						//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidadeSemTag);
+						ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidadeSemTag);
 						
-						for (String entidadeFormatada : listaTemporalFormatada){
+						//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidadeSemTag, listaEntidadesTemporalizadas);
+						//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
+						
+						for (String entidadeFormatada : listaEntidadesTemporalizadas){
 							listaRetorno.add(entidadeFormatada);
 						}						
 					}
@@ -606,9 +608,11 @@ public class RisoTotMain2 {
 		if (!hashEntidadesDatas.containsKey(entidade)){
 			for (int i = 0; i < tagsTemporais.size(); i++){
 				if (entidadesTempDBPedia.contains(getDataSemTag(tagsTemporais.get(i)))){
-					ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(tagsTemporais.get(i));
-					ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(tagsTemporais.get(i), listaEntidadesTemporalizadas);
-					ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+					//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(tagsTemporais.get(i));
+					ArrayList<String> listaTemporalFormatada = DBPediaDAO.buscaDataEntidades(tagsTemporais.get(i));
+					
+					// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(tagsTemporais.get(i), listaEntidadesTemporalizadas);
+					// ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
 
 					addHashEntidadesDatas(entidade, listaTemporalFormatada);					
 				}else{
@@ -630,9 +634,9 @@ public class RisoTotMain2 {
 			
 			for (int i = 0; i < datasFinal.size(); i++){
 				if (entidadesTempDBPedia.contains(getDataSemTag(datasFinal.get(i)))){
-					ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(datasFinal.get(i));
-					ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(datasFinal.get(i), listaEntidadesTemporalizadas);
-					ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+					ArrayList<String> listaTemporalFormatada = DBPediaDAO.buscaDataEntidades(datasFinal.get(i));
+//					ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(datasFinal.get(i), listaEntidadesTemporalizadas);
+//					ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
 
 					addHashEntidadesDatas(entidade, listaTemporalFormatada);					
 				}else{
@@ -820,116 +824,121 @@ public class RisoTotMain2 {
 	public static String getDataPosCompare (String dataEntidade, String dataTexto){
 		String retorno  ="";
 		
-		
-		if (dataEntidade.indexOf("[?]") == -1 && dataTexto.indexOf("[?]")== -1){
-			
-			
-			if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf(" < X < ") == -1  && dataTexto.indexOf("X >") == -1 && dataTexto.indexOf("X <") == -1){
-				
-				retorno = dataEntidade;
-				
-			}else if (dataEntidade.indexOf(" < X < ") == -1  && dataEntidade.indexOf("X >") == -1 && dataEntidade.indexOf("X <") == -1 && dataTexto.indexOf(" < X < ") != -1){
-				
-				retorno = dataEntidade;
-				
-			}else if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf(" < X < ") != -1){
-				String[] camposDataEntidade = dataEntidade.split(" < X < ");
-				String[] camposDataTexto = dataTexto.split(" < X < ");
-				
-				Date data1Entidade = getStringAsDate(camposDataEntidade[0]);
-				Date data2Entidade = getStringAsDate(camposDataEntidade[1]);
-				
-				Date data1Texto = getStringAsDate(camposDataTexto[0]);
-				Date data2Texto = getStringAsDate(camposDataTexto[1]);
+		try{
+			if (dataEntidade.indexOf("[?]") == -1 && dataTexto.indexOf("[?]")== -1){
 				
 				
-				if (data1Entidade.before(data1Texto) && data2Entidade.before(data1Texto)){
-					retorno = dataEntidade;
-				}else if ((data1Entidade.before(data1Texto) || data1Entidade.equals(data1Texto))  && data2Entidade.after(data1Texto)  && (data2Entidade.before(data2Texto) || data2Entidade.equals(data2Texto))){
-					retorno = camposDataTexto[0] + " < X < " + camposDataEntidade[1];
-				}else if (data1Entidade.after(data1Texto) &&  data1Entidade.before(data2Texto) && data2Entidade.after(data1Texto)  && data2Entidade.before(data2Texto)){
-					retorno = dataEntidade;
-				}else if (data1Entidade.after(data1Texto) &&  data1Entidade.after(data2Texto) && data2Entidade.after(data1Texto)  && data2Entidade.after(data2Texto)){
-					retorno = dataEntidade;
-				}
-				
-			}else if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf("X < ") != -1 && dataTexto.indexOf(" < X < ") == -1){
-				
-				
-				retorno = dataEntidade;
-				String[] camposDataEntidade = dataEntidade.split(" < X < ");
-				String[] camposDataTexto = dataTexto.split("X < ");
-				
-				Date data1Entidade = getStringAsDate(camposDataEntidade[0]);
-				Date data2Entidade = getStringAsDate(camposDataEntidade[1]);
-				
-				Date data1Texto = getStringAsDate(camposDataTexto[1]);
-				
-				if (data1Entidade.before(data1Texto) && data2Entidade.before(data1Texto)){
-					retorno = dataEntidade;
-				}else if ((data1Entidade.before(data1Texto) || data1Entidade.equals(data1Texto)) && (data2Entidade.after(data1Texto) || data2Entidade.equals(data1Texto))){
-					retorno = camposDataEntidade[0] + " < X < " + camposDataTexto[1];
-				}else if (data1Entidade.after(data1Texto) && data2Entidade.after(data1Texto)){
-					retorno = dataEntidade;
-				}					
-				
-			}else if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf("X > ") != -1 && dataTexto.indexOf(" < X < ") == -1){
-				
-				String[] camposDataEntidade = dataEntidade.split(" < X < ");
-				String[] camposDataTexto = dataTexto.split("X > ");
-				
-				Date data1Entidade = getStringAsDate(camposDataEntidade[0]);
-				Date data2Entidade = getStringAsDate(camposDataEntidade[1]);
-				
-				Date data1Texto = getStringAsDate(camposDataTexto[1]);
-				
-				if (data1Entidade.before(data1Texto) && data2Entidade.before(data1Texto)){
-					retorno = dataEntidade;
-				}else if ((data1Entidade.before(data1Texto) || data1Entidade.equals(data1Texto)) && (data2Entidade.after(data1Texto) || data2Entidade.equals(data1Texto))){
-					retorno = camposDataTexto[1] + " < X < " + camposDataEntidade[1];
-				}else if (data1Entidade.after(data1Texto) && data2Entidade.after(data1Texto)){
-					retorno = dataEntidade;
-				}						
-				
-			}else if (dataEntidade.indexOf("X < ") != -1 && dataEntidade.indexOf(" < X < ") == -1 && dataTexto.indexOf(" < X < ") != -1){
-				String[] camposDataEntidade = dataEntidade.split("X < ");
-				String[] camposDataTexto = dataTexto.split(" < X < ");
-				
-				Date data1Entidade = getStringAsDate(camposDataEntidade[1]);
-				
-				Date data1Texto = getStringAsDate(camposDataTexto[0]);
-				Date data2Texto = getStringAsDate(camposDataTexto[1]);
-				
-				if (data1Entidade.before(data1Texto)){
+				if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf(" < X < ") == -1  && dataTexto.indexOf("X >") == -1 && dataTexto.indexOf("X <") == -1){
+					
 					retorno = dataEntidade;
 					
-				}else if ((data1Entidade.after(data1Texto) || data1Entidade.equals(data1Texto)) && (data1Entidade.before(data2Texto) || data1Entidade.equals(data2Texto) )){
-					retorno = camposDataTexto[0] + " < X < " + camposDataEntidade[1];
-				}else if (data1Entidade.after(data1Texto) && data1Entidade.after(data2Texto)){
-					retorno = dataTexto;
-				}					
-				
-			}else if (dataEntidade.indexOf("X > ") != -1 && dataEntidade.indexOf(" < X < ") == -1 && dataTexto.indexOf(" < X < ") != -1){
-				String[] camposDataEntidade = dataEntidade.split("X > ");
-				String[] camposDataTexto = dataTexto.split(" < X < ");
-				
-				Date data1Entidade = getStringAsDate(camposDataEntidade[1]);
-				
-				Date data1Texto = getStringAsDate(camposDataTexto[0]);
-				Date data2Texto = getStringAsDate(camposDataTexto[1]);
-				
-				if (data1Entidade.before(data1Texto)){
-					retorno = dataTexto;
-				}else if ((data1Entidade.after(data1Texto) || data1Entidade.equals(data1Texto)) && (data1Entidade.before(data2Texto) || data1Entidade.equals(data2Texto))){
-					retorno = camposDataEntidade[1] + " < X < " + camposDataTexto[1];					
-				}else if (data1Entidade.after(data1Texto) && data1Entidade.after(data2Texto)){
+				}else if (dataEntidade.indexOf(" < X < ") == -1  && dataEntidade.indexOf("X >") == -1 && dataEntidade.indexOf("X <") == -1 && dataTexto.indexOf(" < X < ") != -1){
+					
 					retorno = dataEntidade;
-				}					
+					
+				}else if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf(" < X < ") != -1){
+					String[] camposDataEntidade = dataEntidade.split(" < X < ");
+					String[] camposDataTexto = dataTexto.split(" < X < ");
+					
+					Date data1Entidade = getStringAsDate(camposDataEntidade[0]);
+					Date data2Entidade = getStringAsDate(camposDataEntidade[1]);
+					
+					Date data1Texto = getStringAsDate(camposDataTexto[0]);
+					Date data2Texto = getStringAsDate(camposDataTexto[1]);
+					
+					
+					if (data1Entidade.before(data1Texto) && data2Entidade.before(data1Texto)){
+						retorno = dataEntidade;
+					}else if ((data1Entidade.before(data1Texto) || data1Entidade.equals(data1Texto))  && data2Entidade.after(data1Texto)  && (data2Entidade.before(data2Texto) || data2Entidade.equals(data2Texto))){
+						retorno = camposDataTexto[0] + " < X < " + camposDataEntidade[1];
+					}else if (data1Entidade.after(data1Texto) &&  data1Entidade.before(data2Texto) && data2Entidade.after(data1Texto)  && data2Entidade.before(data2Texto)){
+						retorno = dataEntidade;
+					}else if (data1Entidade.after(data1Texto) &&  data1Entidade.after(data2Texto) && data2Entidade.after(data1Texto)  && data2Entidade.after(data2Texto)){
+						retorno = dataEntidade;
+					}
+					
+				}else if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf("X < ") != -1 && dataTexto.indexOf(" < X < ") == -1){
+					
+					
+					retorno = dataEntidade;
+					String[] camposDataEntidade = dataEntidade.split(" < X < ");
+					String[] camposDataTexto = dataTexto.split("X < ");
+					
+					Date data1Entidade = getStringAsDate(camposDataEntidade[0]);
+					Date data2Entidade = getStringAsDate(camposDataEntidade[1]);
+					
+					Date data1Texto = getStringAsDate(camposDataTexto[1]);
+					
+					if (data1Entidade.before(data1Texto) && data2Entidade.before(data1Texto)){
+						retorno = dataEntidade;
+					}else if ((data1Entidade.before(data1Texto) || data1Entidade.equals(data1Texto)) && (data2Entidade.after(data1Texto) || data2Entidade.equals(data1Texto))){
+						retorno = camposDataEntidade[0] + " < X < " + camposDataTexto[1];
+					}else if (data1Entidade.after(data1Texto) && data2Entidade.after(data1Texto)){
+						retorno = dataEntidade;
+					}					
+					
+				}else if (dataEntidade.indexOf(" < X < ") != -1 && dataTexto.indexOf("X > ") != -1 && dataTexto.indexOf(" < X < ") == -1){
+					
+					String[] camposDataEntidade = dataEntidade.split(" < X < ");
+					String[] camposDataTexto = dataTexto.split("X > ");
+					
+					Date data1Entidade = getStringAsDate(camposDataEntidade[0]);
+					Date data2Entidade = getStringAsDate(camposDataEntidade[1]);
+					
+					Date data1Texto = getStringAsDate(camposDataTexto[1]);
+					
+					if (data1Entidade.before(data1Texto) && data2Entidade.before(data1Texto)){
+						retorno = dataEntidade;
+					}else if ((data1Entidade.before(data1Texto) || data1Entidade.equals(data1Texto)) && (data2Entidade.after(data1Texto) || data2Entidade.equals(data1Texto))){
+						retorno = camposDataTexto[1] + " < X < " + camposDataEntidade[1];
+					}else if (data1Entidade.after(data1Texto) && data2Entidade.after(data1Texto)){
+						retorno = dataEntidade;
+					}						
+					
+				}else if (dataEntidade.indexOf("X < ") != -1 && dataEntidade.indexOf(" < X < ") == -1 && dataTexto.indexOf(" < X < ") != -1){
+					String[] camposDataEntidade = dataEntidade.split("X < ");
+					String[] camposDataTexto = dataTexto.split(" < X < ");
+					
+					Date data1Entidade = getStringAsDate(camposDataEntidade[1]);
+					
+					Date data1Texto = getStringAsDate(camposDataTexto[0]);
+					Date data2Texto = getStringAsDate(camposDataTexto[1]);
+					
+					if (data1Entidade.before(data1Texto)){
+						retorno = dataEntidade;
+						
+					}else if ((data1Entidade.after(data1Texto) || data1Entidade.equals(data1Texto)) && (data1Entidade.before(data2Texto) || data1Entidade.equals(data2Texto) )){
+						retorno = camposDataTexto[0] + " < X < " + camposDataEntidade[1];
+					}else if (data1Entidade.after(data1Texto) && data1Entidade.after(data2Texto)){
+						retorno = dataTexto;
+					}					
+					
+				}else if (dataEntidade.indexOf("X > ") != -1 && dataEntidade.indexOf(" < X < ") == -1 && dataTexto.indexOf(" < X < ") != -1){
+					String[] camposDataEntidade = dataEntidade.split("X > ");
+					String[] camposDataTexto = dataTexto.split(" < X < ");
+					
+					Date data1Entidade = getStringAsDate(camposDataEntidade[1]);
+					
+					Date data1Texto = getStringAsDate(camposDataTexto[0]);
+					Date data2Texto = getStringAsDate(camposDataTexto[1]);
+					
+					if (data1Entidade.before(data1Texto)){
+						retorno = dataTexto;
+					}else if ((data1Entidade.after(data1Texto) || data1Entidade.equals(data1Texto)) && (data1Entidade.before(data2Texto) || data1Entidade.equals(data2Texto))){
+						retorno = camposDataEntidade[1] + " < X < " + camposDataTexto[1];					
+					}else if (data1Entidade.after(data1Texto) && data1Entidade.after(data2Texto)){
+						retorno = dataEntidade;
+					}					
+					
+				}
 				
+				
+			}else{
+				retorno = dataEntidade;
 			}
 			
-			
-		}else{
+		}catch (Exception e){
+			System.out.println("Data <"+dataEntidade+">possui formato não normalizado");
 			retorno = dataEntidade;
 		}
 		
@@ -940,7 +949,7 @@ public class RisoTotMain2 {
 	
 
 	
-	private static void criaRelacionamentos(String nomeArquivoEntrada){
+	private static void criaRelacionamentos(String nomeArquivoEntrada, String nomeArquivoOriginal){
 		for (int i = 0; i < listaFrasesTemporaisTexto.size(); i++){
 			System.out.println("-------------------");
 			System.out.println("Processando frase ["+(i+1)+"] de ["+listaFrasesTemporaisTexto.size()+"]");
@@ -970,7 +979,8 @@ public class RisoTotMain2 {
 					
 					String entidade = listaEntidadesFrase.get(j);
 					
-					ArrayList<EntidadeEvento> listaEntidadesTempo = DBPediaDAO.getDatasEntidadesEventos(entidade);
+//					ArrayList<EntidadeEvento> listaEntidadesTempo = DBPediaDAO.getDatasEntidadesEventos(entidade);
+					ArrayList<EntidadeEvento> listaEntidadesTempo = DBPediaDAO.buscaDataEntidades(entidade);
 					
 					for (int k = 0; k < listaEntidadesTempo.size(); k++){
 						
@@ -1142,11 +1152,14 @@ public class RisoTotMain2 {
 					if (listaEntDBPediaCase1.contains(getDataSemTag(listaEntidadesFraseCase1.get(j)))){
 						
 						if (contaOcorrenciasDatasTotal(listaEntidadesFraseCase1.get(j), listaEntidadesFraseCase1) == contaOcorrenciasDE(listaEntidadesFraseCase1.get(j), listaEntidadesFraseCase1)){
-							ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(listaEntidadesFraseCase1.get(j));
-							ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(listaEntidadesFraseCase1.get(j), listaEntidadesTemporalizadas);
-							ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+//							ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(listaEntidadesFraseCase1.get(j));
+							ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(listaEntidadesFraseCase1.get(j));
+							
+							
+//							ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(listaEntidadesFraseCase1.get(j), listaEntidadesTemporalizadas);
+							//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
 
-							addHashEntidadesDatas(listaEntidadesFraseCase1.get(j), listaTemporalFormatada);							
+							addHashEntidadesDatas(listaEntidadesFraseCase1.get(j), listaEntidadesTemporalizadas);							
 						}
 						
 						
@@ -1188,11 +1201,13 @@ public class RisoTotMain2 {
 								System.out.println();
 							}
 							// george remover
-							ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
-							ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
-							ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+//							ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
+							ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
+							
+							// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
+							//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
 
-							addHashEntidadesDatas(entidade, listaTemporalFormatada);
+							addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);
 							
 						}
 
@@ -1252,11 +1267,13 @@ public class RisoTotMain2 {
 								addHashEntidadesDatas(entidade, listaDatas, listaEntDBPedia);
 								if (listaEntDBPedia.contains(getDataSemTag(entidade))){
 									if (contaOcorrenciasDatasTotal(frase, listaEntidades) == contaOcorrenciasDE(frase, listaEntidades)){
-										ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
-										ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
-										ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+										//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
+										ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
 
-										addHashEntidadesDatas(entidade, listaTemporalFormatada);										
+										// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
+										//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
+
+										addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);										
 									}
 									
 								}
@@ -1278,11 +1295,13 @@ public class RisoTotMain2 {
 							addHashEntidadesDatas(entidade, listaDatasAux, listaEntDBPedia);
 							if (listaEntDBPedia.contains(getDataSemTag(entidade))){
 								if (contaOcorrenciasDatasTotal(frase, listaEntidadesAux) == contaOcorrenciasDE(frase, listaEntidadesAux)){
-									ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
-									ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
-									ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+									//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
+									ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
+									
+									//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
+									//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
 
-									addHashEntidadesDatas(entidade, listaTemporalFormatada);
+									addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);
 									
 								}
 								
@@ -1326,11 +1345,13 @@ public class RisoTotMain2 {
 									if (listaEntDBPedia.contains(getDataSemTag(entidade))){
 										
 										if (contaOcorrenciasDatasTotal(frase, listaEntidadesAux) == contaOcorrenciasDE(frase, listaEntidadesAux)){
-											ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
-											ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
-											ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+											//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
+											ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
 
-											addHashEntidadesDatas(entidade, listaTemporalFormatada);
+											//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
+											//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
+
+											addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);
 											
 										}
 										
@@ -1411,11 +1432,13 @@ public class RisoTotMain2 {
 												
 												if (contaOcorrenciasDatasTotal(frase, listaEntidadesAuxDatasEmSequencia) == contaOcorrenciasDE(frase, listaEntidadesAuxDatasEmSequencia)){
 													
-													ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidadeAnterior);
-													ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidadeAnterior, listaEntidadesTemporalizadas);
-													ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+													//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidadeAnterior);
+													ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidadeAnterior);
 
-													addHashEntidadesDatas(entidadeAnterior, listaTemporalFormatada);
+													// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidadeAnterior, listaEntidadesTemporalizadas);
+													//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
+
+													addHashEntidadesDatas(entidadeAnterior, listaEntidadesTemporalizadas);
 													
 												}
 												
@@ -1445,11 +1468,12 @@ public class RisoTotMain2 {
 									
 									if (listaEntDBPedia.contains(getDataSemTag(data))){
 										if (contaOcorrenciasDatasTotal(frase, listaEntDBPedia) == contaOcorrenciasDE(frase, listaEntDBPedia)){
-											ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(data);
-											ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(data, listaEntidadesTemporalizadas);
-											ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);		
+//											ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(data);
+											ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(data);
+											//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(data, listaEntidadesTemporalizadas);
+											//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);		
 											
-											for (String dataFormatadaString : listaTemporalFormatada){
+											for (String dataFormatadaString : listaEntidadesTemporalizadas){
 												listaDatas.add(dataFormatadaString);
 											}											
 										}
@@ -1475,11 +1499,13 @@ public class RisoTotMain2 {
 								}
 								// george remover
 								if (listaEntDBPedia.contains(getDataSemTag(data))){
-									ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(data);
-									ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(data, listaEntidadesTemporalizadas);
-									ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);		
+//									ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(data);
+									ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(data);
 									
-									for (String dataFormatadaString : listaTemporalFormatada){
+									//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(data, listaEntidadesTemporalizadas);
+									//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);		
+									
+									for (String dataFormatadaString : listaEntidadesTemporalizadas){
 										listaFinal.add(dataFormatadaString);
 									}
 								}else{
@@ -1519,11 +1545,13 @@ public class RisoTotMain2 {
 								
 								if (listaEntDBPedia.contains(getDataSemTag(entidade))){
 									if (contaOcorrenciasDatasTotal(frase, listaEntidades) == contaOcorrenciasDE(frase, listaEntidades)){
-										ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
-										ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
-										ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+										//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
+										ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
+										
+										// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
+										//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
 
-										addHashEntidadesDatas(entidade, listaTemporalFormatada);										
+										addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);										
 									}
 									
 									
@@ -1560,11 +1588,13 @@ public class RisoTotMain2 {
 							
 							if (listaEntDBPedia.contains(getDataSemTag(entidade))){
 								
-								ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
-								ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
-								ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+								// ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
+								ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
 
-								addHashEntidadesDatas(entidade, listaTemporalFormatada);
+								//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
+								//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
+
+								addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);
 								
 							}
 							
@@ -1693,6 +1723,8 @@ public class RisoTotMain2 {
         BufferedWriter writer;
 		try {
 			writer = new BufferedWriter(new FileWriter(file));
+			
+			
 			for (String entity : hashEntidadesDatas.keySet()) {
 				String line = entity + ";";
 				
@@ -1702,7 +1734,7 @@ public class RisoTotMain2 {
 		        	
 		        	if (!data.isEmpty()){
 		        		
-		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data));
+		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data), nomeArquivoOriginal);
 
 		        		dataNormalizada = dataNormalizada.replaceAll(" > X < ", " < X < "); // corrige formato antigo e errado
 		        		
@@ -1790,9 +1822,12 @@ public class RisoTotMain2 {
 	        
 	        boolean encontrou = false;
 	        
-	        String dataNomeArquivo = DBPediaDAO.buscaDataNormalizada(nomeArquivoSemExtensao);
+	        String dataNomeArquivo = DBPediaDAO.buscaDataNormalizada(nomeArquivoOriginal.replace(".txt", ""), nomeArquivoOriginal);
 	        
-	        if (nomeArquivoSemExtensao.equals(DBPediaDAO.buscaDataNormalizada(nomeArquivoSemExtensao))){
+	        
+	        
+	        
+	        if (nomeArquivoSemExtensao.equals(dataNomeArquivo)){
 	        	encontrou = true;
 	        }
 	        
@@ -1806,7 +1841,7 @@ public class RisoTotMain2 {
 		        	
 		        	if (!data.isEmpty()){
 		        		
-		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data));
+		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data), nomeArquivoOriginal);
 		        		
 		        		
 		        		dataNormalizada = getDataPosCompare(dataNormalizada, dataNomeArquivo);
@@ -1867,6 +1902,9 @@ public class RisoTotMain2 {
 		}  
 		
 	}
+	
+	public static HashMap entidadesDbpedia = new HashMap();
+	
 	private static void extracaoDeFrases(){
 		listaTodasAsFrasesTexto = conteudo.split("\\./.");
 		System.out.println("Texto possui ["+ (listaTodasAsFrasesTexto.length - 1) +"] frases.");
@@ -1944,6 +1982,7 @@ public class RisoTotMain2 {
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_TesteProfessor.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
 		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_Napoleon_final.txt";
+		String nomeArquivoOriginal = "Napoleon.txt";
 		
 		
 		
@@ -2042,7 +2081,7 @@ public class RisoTotMain2 {
 				leituraDoArquivo(nomeArquivo);
 				carregaEntidadestexto(caminhoArquivoEntidades);
 				extracaoDeFrases();
-				criaRelacionamentos(nomeArquivo);
+				criaRelacionamentos(nomeArquivo, nomeArquivoOriginal);
 				
 				
 			} catch (FileNotFoundException e) {

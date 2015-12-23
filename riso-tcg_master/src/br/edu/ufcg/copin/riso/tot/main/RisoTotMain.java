@@ -140,9 +140,9 @@ public class RisoTotMain {
 									if (!listaEntidadesRelacionadas.isEmpty()){
 										System.out.print(expressaoTemporal+";");
 										for (int x = 0; x < listaEntidadesRelacionadas.size(); x++){
-											String dataNormalizada = DBPediaDAO.buscaDataNormalizada(listaEntidadesRelacionadas.get(x));
-											if (listaEntidadesTexto.contains(dataNormalizada));
-											System.out.print(dataNormalizada + " ");
+////											String dataNormalizada = DBPediaDAO.buscaDataNormalizada(listaEntidadesRelacionadas.get(x));
+//											if (listaEntidadesTexto.contains(dataNormalizada));
+//											System.out.print(dataNormalizada + " ");
 										}
 										System.out.println("");
 										
