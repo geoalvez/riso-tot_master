@@ -5,6 +5,9 @@ public class Teste {
 
 	public static void main(String[] args) {
 		int i = 0;
+		
+		
+		System.out.println("oi oi oi ");
 
 //		System.out.println(i++ + " " + RisoTotMain2.getDataPosCompareRefact("X < 01-02-2016", "1-5-2014 < X < 10-3-2015"));				
 //		System.out.println(i++ + " " + RisoTotMain2.getDataPosCompareRefact("X < 01-02-2015", "1-5-2014 < X < 10-3-2015"));		
