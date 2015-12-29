@@ -45,7 +45,8 @@ public class RisoTotMain2 {
 	private static String[] listaVerbos = {"VBD", "VB", "VBG", "VBN", "VBP", "VBZ"};
 	
 	private static String[] listaTodasAsFrasesTexto;
-	private static ArrayList<String> listaFrasesTemporaisTexto = new ArrayList<String>();
+	
+	public static ArrayList<String> listaFrasesTemporaisTexto = new ArrayList<String>();
 	
 	private static ArrayList<String> listaEntidadesTexto = new ArrayList<String>();
 	
@@ -972,7 +973,7 @@ public class RisoTotMain2 {
 				
 				
 				
-				ArrayList<String> tagsTemporais = new ArrayList<String>();
+				// ArrayList<String> tagsTemporais = new ArrayList<String>();
 				
 				
 				for (int j = 0; j < listaEntidadesFrase.size(); j++){
@@ -980,119 +981,9 @@ public class RisoTotMain2 {
 					String entidade = listaEntidadesFrase.get(j);
 					
 //					ArrayList<EntidadeEvento> listaEntidadesTempo = DBPediaDAO.getDatasEntidadesEventos(entidade);
-					ArrayList<EntidadeEvento> listaEntidadesTempo = DBPediaDAO.buscaDataEntidades(entidade);
+					ArrayList<String> tagsTemporais = DBPediaDAO.buscaDataEntidades(entidade);
 					
-					for (int k = 0; k < listaEntidadesTempo.size(); k++){
-						
-						EntidadeEvento ent = listaEntidadesTempo.get(k); 
-						
-						//TODO - Verificar quais datas serão realmente importante para as entidades
-						
-						if (ent instanceof Cidade){
-							Cidade cidade = (Cidade) ent;
-							if (!tagsTemporais.contains(cidade.getFoundingDate())){
-								tagsTemporais.add(cidade.getFoundingDate());
-							}
-							
-						}else if (ent instanceof Empresa){
-							Empresa empresa = (Empresa) ent;
-							if (!tagsTemporais.contains(empresa.getFoundingDate())){
-								tagsTemporais.add(empresa.getFoundingDate());
-							}
-						}else if (ent instanceof Estado){
-							Estado estado = (Estado) ent;
-							if (!tagsTemporais.contains(estado.getAdmittanceDate())){
-								tagsTemporais.add(estado.getAdmittanceDate());
-							}
-							
-						}else if (ent instanceof Feriado){
-							Feriado feriado = (Feriado) ent;
-							if (!tagsTemporais.contains(feriado.getDate())){
-								tagsTemporais.add(feriado.getDate());
-							}
-							
-							
-						}else if (ent instanceof Instituicao){
-							Instituicao instituicao  = (Instituicao) ent;
-							if (!tagsTemporais.contains(instituicao.getEstablished())){
-								tagsTemporais.add(instituicao.getEstablished());
-							}
-						}else if (ent instanceof Local){
-							Local local = (Local) ent;
-							if (!tagsTemporais.contains(local.getCompletionDate())){
-								tagsTemporais.add(local.getCompletionDate());
-							}
-							
-							if (!tagsTemporais.contains(local.getCreated())){
-								tagsTemporais.add(local.getCreated());
-							}
-							
-							if (!tagsTemporais.contains(local.getOpened())){
-								tagsTemporais.add(local.getOpened());
-							}
-							
-							if (!tagsTemporais.contains(local.getOpening())){
-								tagsTemporais.add(local.getOpening());
-							}
-							
-							if (!tagsTemporais.contains(local.getOpeningDate())){
-								tagsTemporais.add(local.getOpeningDate());
-							}
-							
-							if (!tagsTemporais.contains(local.getStartDate())){
-								tagsTemporais.add(local.getStartDate());
-							}
-							
-						}else if (ent instanceof Pais){
-							Pais pais = (Pais) ent;
-							if (!tagsTemporais.contains(pais.getEstablishedDate())){
-								tagsTemporais.add(pais.getEstablishedDate());
-							}
-							
-							if (!tagsTemporais.contains(pais.getFoundingDate())){
-								tagsTemporais.add(pais.getFoundingDate());
-							}
-							
-							
-						}else if (ent instanceof Pessoa){
-							Pessoa pessoa = (Pessoa) ent;
-							
-							if (!tagsTemporais.contains(pessoa.getActiveYearsEndDate())){
-								tagsTemporais.add(pessoa.getActiveYearsEndDate());
-							}
-							
-							if (!tagsTemporais.contains(pessoa.getActiveYearsEndYear())){
-								tagsTemporais.add(pessoa.getActiveYearsEndYear());
-							}
-
-							if (!tagsTemporais.contains(pessoa.getActiveYearsStartDate())){
-								tagsTemporais.add(pessoa.getActiveYearsStartDate());
-							}
-							
-							if (!tagsTemporais.contains(pessoa.getActiveYearsStartYear())){
-								tagsTemporais.add(pessoa.getActiveYearsStartYear());
-							}
-							
-							if (!tagsTemporais.contains(pessoa.getBirthDate())){
-								tagsTemporais.add(pessoa.getBirthDate());
-							}
-							
-							if (!tagsTemporais.contains(pessoa.getDeathDate())){
-								tagsTemporais.add(pessoa.getDeathDate());
-							}
-							
-							if (!tagsTemporais.contains(pessoa.getReign())){
-								tagsTemporais.add(pessoa.getReign());
-							}
-							
-						}
-
-						// george remover - INICIO 
-						if (listaEntidadesFrase.get(j).equals("caught")){
-							System.out.println();
-						}
-						// george remover - FIM
-						
+					for (int k = 0; k < tagsTemporais.size(); k++){
 						
 						addHashEntidadesDatas(listaEntidadesFrase.get(j), tagsTemporais);
 						
@@ -1734,7 +1625,7 @@ public class RisoTotMain2 {
 		        	
 		        	if (!data.isEmpty()){
 		        		
-		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data), nomeArquivoOriginal);
+		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data), nomeArquivoOriginal, data, entity);
 
 		        		dataNormalizada = dataNormalizada.replaceAll(" > X < ", " < X < "); // corrige formato antigo e errado
 		        		
@@ -1742,11 +1633,11 @@ public class RisoTotMain2 {
 
 			        	dataNormalizada = dataNormalizada.replace("[?]", "__");
 			        	
-			    		dataNormalizada = dataNormalizada.replace(" < X < ", " to ");
+			    		dataNormalizada = dataNormalizada.replace(" < X < ", "_to_");
 
-			    		if (dataNormalizada.indexOf(" to ") == -1){
+			    		if (dataNormalizada.indexOf("_to_") == -1){
 			    			if (dataNormalizada.split("-").length == 3){
-			    				dataNormalizada = dataNormalizada + " to " + dataNormalizada;
+			    				dataNormalizada = dataNormalizada + "_to_" + dataNormalizada;
 			    			}
 			    			
 			    		}
@@ -1822,7 +1713,7 @@ public class RisoTotMain2 {
 	        
 	        boolean encontrou = false;
 	        
-	        String dataNomeArquivo = DBPediaDAO.buscaDataNormalizada(nomeArquivoOriginal.replace(".txt", ""), nomeArquivoOriginal);
+	        String dataNomeArquivo = DBPediaDAO.buscaDataNormalizada(nomeArquivoOriginal.replace(".txt", ""), nomeArquivoOriginal, "", "");
 	        
 	        
 	        
@@ -1841,7 +1732,7 @@ public class RisoTotMain2 {
 		        	
 		        	if (!data.isEmpty()){
 		        		
-		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data), nomeArquivoOriginal);
+		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data), nomeArquivoOriginal, data, entity);
 		        		
 		        		
 		        		dataNormalizada = getDataPosCompare(dataNormalizada, dataNomeArquivo);
@@ -1861,12 +1752,12 @@ public class RisoTotMain2 {
 			    			model2 = jena2.criaOntologia("/c/en/"+nomeArquivoSemCaminho, null);
 			    		}
 			    		
-			    		dataNormalizada = dataNormalizada.replace(" < X < ", " to ");
+			    		dataNormalizada = dataNormalizada.replace(" < X < ", "_to_");
 			    		
 			    		
-			    		if (dataNormalizada.indexOf(" to ") == -1){
+			    		if (dataNormalizada.indexOf("_to_") == -1){
 			    			if (dataNormalizada.split("-").length == 3){
-			    				dataNormalizada = dataNormalizada + " to " + dataNormalizada;
+			    				dataNormalizada = dataNormalizada + "_to_" + dataNormalizada;
 			    			}
 			    			
 			    		}
@@ -1981,7 +1872,7 @@ public class RisoTotMain2 {
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_RussoJap.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_TesteProfessor.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
-		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_Napoleon_final_2.txt";
+		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_Napoleon_final.txt";
 		String nomeArquivoOriginal = "Napoleon.txt";
 		
 		

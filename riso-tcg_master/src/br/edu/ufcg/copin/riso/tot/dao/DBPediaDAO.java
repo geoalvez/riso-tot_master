@@ -802,7 +802,7 @@ public class DBPediaDAO {
 	}
 
 	
-	public static String buscaDataNormalizada(String dataNaoNormalizada, String nomeArquivo){
+	public static String buscaDataNormalizada(String dataNaoNormalizada, String nomeArquivo, String dataComTag, String entidade){
 		
 		PreparedStatement pstm = null;
 		Statement stm = null;
@@ -828,19 +828,43 @@ public class DBPediaDAO {
 						break;
 					}
 					
+					ArrayList<String> listaAux = RisoTotMain2.listaFrasesTemporaisTexto;
+					
+					int ocorrenciaData = 0;
+					for (int i = 0; i <listaAux.size(); i++){
+						
+						
+						String frase = RisoTotMain2.getFraseSemTags(listaAux.get(i));
+						
+						if (frase.indexOf(dataComTag) >= 0 && frase.indexOf(entidade) >= 0 ){
+							ocorrenciaData++;
+							break;
+						}else if (frase.indexOf(dataComTag) >= 0){
+							ocorrenciaData++;							
+						}
+						
+					}
 					
 					stm = con.createStatement();
 					// stm = DBConexion.getInstance().getConnection().createStatement();
-					pstm = con.prepareStatement("SELECT datanormalizada, seq_frase FROM datanorm WHERE data = '"+dataNaoNormalizada+"' and flg_extr_tm is null and id_documento = "+idDocumento+" order by seq_frase asc");
+					pstm = con.prepareStatement("SELECT datanormalizada, seq_frase FROM datanorm WHERE data = '"+dataNaoNormalizada+"' and id_documento = "+idDocumento+" order by seq_frase asc");
 							rs = pstm.executeQuery();
+							
+					int iAux = 1;
 					while (rs.next()){
 						
 						retorno = rs.getString("datanormalizada");
 						
 						int idFrase = rs.getInt("seq_frase");
 						
-						String sql = "UPDATE datanorm set flg_extr_tm = 'X' where seq_frase = "+idFrase+" ";
-						stm.execute(sql);
+						if (iAux == ocorrenciaData){
+							break;
+						}
+						
+						iAux++;
+						
+//						String sql = "UPDATE datanorm set flg_extr_tm = 'X' where seq_frase = "+idFrase+" ";
+//						stm.execute(sql);
 						break;
 					}
 						
