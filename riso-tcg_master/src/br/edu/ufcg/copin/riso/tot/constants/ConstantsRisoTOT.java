@@ -45,7 +45,9 @@ public class ConstantsRisoTOT {
 
 	public static final String REGEX_MESES = "(january|february|march|april|may|june|july|august|september|october|november|december)";
 	public static final String REGEX_DIAS = "\\d{4}";
-
+	
+	public static final String REGEX_FORMATO_MES_MES_ANO = "^"+REGEX_MESES+" - "+REGEX_MESES+", \\d{4}@en < X < "+REGEX_MESES+" - "+REGEX_MESES+", \\d{4}@en$";
+	
 	public static final String REGEX_MES_ANO = "^" + REGEX_MESES + " " + REGEX_DIAS + "$";
 	
 	

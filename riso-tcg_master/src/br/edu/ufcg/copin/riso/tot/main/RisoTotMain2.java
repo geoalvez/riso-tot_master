@@ -54,6 +54,7 @@ public class RisoTotMain2 {
 	
 	private static HashMap<String, ArrayList<String>> hashEntidadesDatas = new HashMap();
 	
+	private static HashMap<String, ArrayList<String>> hashEntidadesDatasNaoNormalizadas = new HashMap();
 	
 	private static boolean verificaArquivoAnterior(int numInicio){
 		boolean retorno = true;
@@ -600,6 +601,26 @@ public class RisoTotMain2 {
 		
 		
 	}
+
+	public static void addHashEntidadesDatasNaoNormalizadas(String entidade, ArrayList<String> tagsTemporais){
+		
+		if (!hashEntidadesDatasNaoNormalizadas.containsKey(entidade)){
+			hashEntidadesDatasNaoNormalizadas.put(entidade, tagsTemporais);
+		}else{
+			ArrayList<String> datasAux = hashEntidadesDatasNaoNormalizadas.get(entidade);
+			ArrayList<String> datasFinal = new ArrayList<>();
+			datasFinal.addAll(datasAux);
+			for (int k = 0; k < tagsTemporais.size(); k++){
+				if (!datasFinal.contains(tagsTemporais.get(k)) && !tagsTemporais.get(k).isEmpty()){
+					datasFinal.add(tagsTemporais.get(k));
+				}
+			}
+			
+			hashEntidadesDatasNaoNormalizadas.put(entidade, datasFinal);
+		}
+		
+		
+	}
 	
 	public static void addHashEntidadesDatas(String entidade, ArrayList<String> tagsTemporais, ArrayList<String> entidadesTempDBPedia){
 		
@@ -615,7 +636,7 @@ public class RisoTotMain2 {
 					// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(tagsTemporais.get(i), listaEntidadesTemporalizadas);
 					// ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
 
-					addHashEntidadesDatas(entidade, listaTemporalFormatada);					
+					addHashEntidadesDatas(entidade, listaTemporalFormatada);	
 				}else{
 					ArrayList<String> listaAux = new ArrayList<String>();
 					listaAux.add(tagsTemporais.get(i));
@@ -1618,6 +1639,7 @@ public class RisoTotMain2 {
 			
 			for (String entity : hashEntidadesDatas.keySet()) {
 				String line = entity + ";";
+				String datasNaoNormalizadas = ""; 
 				
 				int cnt = 0;
 		        for (String data : hashEntidadesDatas.get(entity)){
@@ -1631,6 +1653,8 @@ public class RisoTotMain2 {
 		        		
 			        	line = line.concat(dataNormalizada);
 
+			        	datasNaoNormalizadas = datasNaoNormalizadas.concat(getDataSemTag(data));
+			        	
 			        	dataNormalizada = dataNormalizada.replace("[?]", "__");
 			        	
 			    		dataNormalizada = dataNormalizada.replace(" < X < ", "_to_");
@@ -1675,6 +1699,12 @@ public class RisoTotMain2 {
 			        	if (hashEntidadesDatas.get(entity).size() != cnt){
 				        	line = line.concat(",");
 			        	}
+			        	
+			        	if (hashEntidadesDatas.get(entity).size() != cnt){
+				        	datasNaoNormalizadas = datasNaoNormalizadas.concat(",");
+			        	}
+			        	
+
 		        		
 		        	}
 		        	
@@ -1682,7 +1712,7 @@ public class RisoTotMain2 {
 		        if (cnt == 0){
 		        	line = line + "Data Especial não mapeada na DBPedia";
 		        }
-		        writer.write(line);
+		        writer.write(line+";"+datasNaoNormalizadas);
 		        writer.newLine();  						
 			}				
 
