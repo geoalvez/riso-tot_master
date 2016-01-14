@@ -971,7 +971,7 @@ public class RisoTotMain2 {
 	
 
 	
-	private static void criaRelacionamentos(String nomeArquivoEntrada, String nomeArquivoOriginal){
+	private static void criaRelacionamentos(String nomeArquivoEntrada, String nomeArquivoOriginal, String nomeArquivoSemPrefixoExtensao){
 		for (int i = 0; i < listaFrasesTemporaisTexto.size(); i++){
 			System.out.println("-------------------");
 			System.out.println("Processando frase ["+(i+1)+"] de ["+listaFrasesTemporaisTexto.size()+"]");
@@ -986,6 +986,10 @@ public class RisoTotMain2 {
 			// george remover
 			String[] listaAux = listaFrasesTemporaisTexto.get(i).split(ConstantsRisoTOT.TAG_RISO_TEMPORAL);
 			int contaOcorrenciasTemporais = listaAux.length-1;
+			if ( getFraseSemTags(listaFrasesTemporaisTexto.get(i)).indexOf("associated wars") >= 0){
+				System.out.println();
+			}
+			
 			switch (contaOcorrenciasTemporais) {
 
 			case 0:
@@ -1099,7 +1103,7 @@ public class RisoTotMain2 {
 				String frase = listaFrasesTemporaisTexto.get(i);
 				
 				ArrayList<String> partesFrase = retornaFraseEmPartes(frase);
-				ArrayList<String> listaEntidadesDaFrase = getEntidadesFrases(frase);
+				ArrayList<String> listaEntidadesDaFrase = getEntidadesFrases(getFraseSemTags(frase));
 				
 				ArrayList<String> listaEntDBPedia = getEntidadesTemporalizadasDBPedia(listaFrasesTemporaisTexto.get(i));
 				
@@ -1629,7 +1633,7 @@ public class RisoTotMain2 {
 		}
 	    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMddhh24mmss");
 		String nomeArquivo = "Entidades_Datas_"+dt.format(new Date())+".csv";
-		
+
         File file = new File("C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\"+nomeArquivo);  
         long begin = System.currentTimeMillis();  
         BufferedWriter writer;
@@ -1697,11 +1701,11 @@ public class RisoTotMain2 {
 			        	
 			        	
 			        	if (hashEntidadesDatas.get(entity).size() != cnt){
-				        	line = line.concat(",");
+				        	line = line.concat("|");
 			        	}
 			        	
 			        	if (hashEntidadesDatas.get(entity).size() != cnt){
-				        	datasNaoNormalizadas = datasNaoNormalizadas.concat(",");
+				        	datasNaoNormalizadas = datasNaoNormalizadas.concat("|");
 			        	}
 			        	
 
@@ -1729,26 +1733,34 @@ public class RisoTotMain2 {
 	        
 	        String nomeArquivoSemCaminho = camposAuxArquivo[camposAuxArquivo.length-1];
 	        
-	        String nomeArquivoSemExtensao = nomeArquivoSemCaminho.replace(".txt", "");
-	        nomeArquivoSemExtensao = nomeArquivoSemExtensao.replace("saidaUnificada_TesteProfessor_", "");
-	        nomeArquivoSemExtensao = nomeArquivoSemExtensao.replaceAll("_", " ");
+//	        String nomeArquivoSemExtensao = nomeArquivoSemCaminho.replace(".txt", "");
+//	        nomeArquivoSemExtensao = nomeArquivoSemExtensao.replace("saidaUnificada_TesteProfessor_", "");
+//	        nomeArquivoSemExtensao = nomeArquivoSemExtensao.replaceAll("_", " ");
 	        
 	        boolean encontrouDataArquivo = false;
+	        ArrayList<String> listaDatas = new ArrayList<String>();;
 	        try {
-				DBPediaDAO.recuperaEInsereDatasEntidadesEventos(nomeArquivoSemExtensao);
+	        	listaDatas = DBPediaDAO.recuperaEInsereDatasEntidadesEventos(nomeArquivoSemPrefixoExtensao.replace("_", " "));
+	        	System.out.println("qtd retornada ["+nomeArquivoSemPrefixoExtensao+"] --- ["+listaDatas.size()+"]"); // george remover
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 	        
+	        String dataNomeArquivo;
+	        if (null != listaDatas && listaDatas.size() > 0){
+	        	dataNomeArquivo = listaDatas.get(0);
+	        }else{
+		        dataNomeArquivo = DBPediaDAO.buscaDataNormalizada(nomeArquivoSemPrefixoExtensao.replace("_", " "), nomeArquivoOriginal, "", "");
+	        }
+	        
 	        boolean encontrou = false;
 	        
-	        String dataNomeArquivo = DBPediaDAO.buscaDataNormalizada(nomeArquivoOriginal.replace(".txt", ""), nomeArquivoOriginal, "", "");
 	        
 	        
 	        
 	        
-	        if (nomeArquivoSemExtensao.equals(dataNomeArquivo)){
+	        if ((nomeArquivoOriginal.replace(".txt", "")).equals(dataNomeArquivo)){
 	        	encontrou = true;
 	        }
 	        
@@ -1904,6 +1916,7 @@ public class RisoTotMain2 {
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
 		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_Napoleon_final.txt";
 		String nomeArquivoOriginal = "Napoleon.txt";
+		String nomeArquivoSemPrefixo = "Napoleon";
 		
 		
 		
@@ -2002,7 +2015,7 @@ public class RisoTotMain2 {
 				leituraDoArquivo(nomeArquivo);
 				carregaEntidadestexto(caminhoArquivoEntidades);
 				extracaoDeFrases();
-				criaRelacionamentos(nomeArquivo, nomeArquivoOriginal);
+				criaRelacionamentos(nomeArquivo, nomeArquivoOriginal, nomeArquivoSemPrefixo);
 				
 				
 			} catch (FileNotFoundException e) {

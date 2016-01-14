@@ -22,17 +22,17 @@ public class GeraArquivoFinalRISOTaggerTT {
         ArrayList<String> arrayDeDatas = new ArrayList<String>();
 		
 //        String arquivoGeradoPeloRisoTT = "RussoJap.txt";
-        String arquivoGeradoPeloRisoTT = "Napoleon_completo.txt";
+        String arquivoGeradoPeloRisoTT = "IraqWar_completo.txt";
         
 //		String saidaArquivoParaPosTagger = "RussoJap.txt";
-		String saidaArquivoParaPosTagger = "Napoleon_completo.txt";
+		String saidaArquivoParaPosTagger = "IraqWar_completo.txt";
 		
 //		String arquivoGeradoPosTaggerParaLeituraDoTCG = "RussoJap.txt";
-		String arquivoGeradoPosTaggerParaLeituraDoTCG = "Napoleon_completo.txt";
+		String arquivoGeradoPosTaggerParaLeituraDoTCG = "IraqWar_completo.txt";
 		
 
 //		String arquivoSaidaTCG = "saidaUnificada_RussoJap.txt";
-		String arquivoSaidaTCG = "saidaUnificada_Napoleon_final.txt";
+		String arquivoSaidaTCG = "saidaUnificada_IraqWar_final.txt";
 
         try {
 			/* Lendo arquivo com a saida do RISO-TT */

@@ -216,7 +216,7 @@ public class DBPediaDAO {
 	}
 	
 	
-	public static void recuperaEInsereDatasEntidadesEventos (String entidadeTexto) throws Exception{
+	public static ArrayList<String> recuperaEInsereDatasEntidadesEventos (String entidadeTexto) throws Exception{
 		
 		ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidadeTexto);
 		
@@ -240,6 +240,8 @@ public class DBPediaDAO {
 		if (!listaEntidadesTemporalizadas.isEmpty()){
 			DBPediaDAO.formataEInsereDataEntidade(entidadeTexto, listaEntidadesTemporalizadas, listaTempoEntidade);			
 		}
+		return listaTempoEntidade;
+				
 	}
 	
 	public static String obtemDemaisFormatos(String data){
