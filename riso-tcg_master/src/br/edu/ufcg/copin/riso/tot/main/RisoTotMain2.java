@@ -8,35 +8,28 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.hp.hpl.jena.ontology.OntModel;
+import jdk.nashorn.internal.runtime.ListAdapter;
 
 import br.edu.ufcg.copin.riso.tot.constants.ConstantsRisoTOT;
 import br.edu.ufcg.copin.riso.tot.dao.DBPediaDAO;
-import br.edu.ufcg.copin.riso.tot.entities.Cidade;
-import br.edu.ufcg.copin.riso.tot.entities.Empresa;
 import br.edu.ufcg.copin.riso.tot.entities.EntidadeEvento;
-import br.edu.ufcg.copin.riso.tot.entities.Estado;
-import br.edu.ufcg.copin.riso.tot.entities.Feriado;
-import br.edu.ufcg.copin.riso.tot.entities.Instituicao;
-import br.edu.ufcg.copin.riso.tot.entities.Local;
-import br.edu.ufcg.copin.riso.tot.entities.Pais;
-import br.edu.ufcg.copin.riso.tot.entities.Pessoa;
 import br.edu.ufcg.copin.riso.tot.jena.JenaOWL;
+
+import com.hp.hpl.jena.ontology.OntModel;
 
 public class RisoTotMain2 {
 
 
 	private static String conteudo = "";
+	private static String conteudoSemMarcacao = "";
 
 	private static String[] listaConjuncoes = {"and/CC","or/CC","but/CC"};
 	
@@ -45,8 +38,10 @@ public class RisoTotMain2 {
 	private static String[] listaVerbos = {"VBD", "VB", "VBG", "VBN", "VBP", "VBZ"};
 	
 	private static String[] listaTodasAsFrasesTexto;
+	private static String[] listaTodasAsFrasesTextoSemMarcacao;
 	
 	public static ArrayList<String> listaFrasesTemporaisTexto = new ArrayList<String>();
+	public static ArrayList<String> listaFrasesTemporaisTextoSemMarcacao = new ArrayList<String>();
 	
 	private static ArrayList<String> listaEntidadesTexto = new ArrayList<String>();
 	
@@ -134,7 +129,7 @@ public class RisoTotMain2 {
 		System.out.println("arquivo de controle deletado!" );
 		
 	}
-	private static void carregaEntidadestexto(String caminhoArquivo){
+	public static void carregaEntidadestexto(String caminhoArquivo){
 		try {
 			FileReader fr = new FileReader(caminhoArquivo);
 			BufferedReader br = new BufferedReader( fr );
@@ -201,15 +196,53 @@ public class RisoTotMain2 {
 		return false;
 	}
 	
-	public static ArrayList<String> getEntidadesFrases(String frase){
+	public static ArrayList<String> getEntidadesFrases(String frase, String fraseSemMarcacao){
 		ArrayList<String> retorno = new ArrayList<String>();
+		frase = frase.trim();
+		fraseSemMarcacao = fraseSemMarcacao.trim();
+		if (frase.endsWith(ConstantsRisoTOT.TAG_RISO_TEMPORAL)){
+			String fraseAux = frase.substring(0, frase.lastIndexOf(ConstantsRisoTOT.TAG_RISO_TEMPORAL));
+			frase = frase.substring(0, frase.lastIndexOf(ConstantsRisoTOT.TAG_RISO_TEMPORAL));
+			String ultimaPalavra = frase.split(" ")[frase.split(" ").length-1];
+
+			ultimaPalavra = ultimaPalavra.substring(ultimaPalavra.indexOf(">")+1);
+			ultimaPalavra = ultimaPalavra.replace("_", " ");
+			fraseSemMarcacao = fraseSemMarcacao.substring(0, fraseSemMarcacao.lastIndexOf(ultimaPalavra)+ultimaPalavra.length());
+		}else if (!frase.split(" ")[frase.split(" ").length-1].equals(fraseSemMarcacao.split(" ")[fraseSemMarcacao.split(" ").length-1])){
+			String ultimaPalavra = frase.split(" ")[frase.split(" ").length-1];
+			fraseSemMarcacao = fraseSemMarcacao.substring(0, fraseSemMarcacao.lastIndexOf(ultimaPalavra)+ultimaPalavra.length());
+		}
+
+		
+		if (frase.startsWith(ConstantsRisoTOT.TAG_GENERICA)){
+//			String fraseAux = frase.substring(frase.indexOf(ConstantsRisoTOT.TAG_GENERICA), frase.lastIndexOf(ConstantsRisoTOT.TAG_RISO_TEMPORAL));
+			frase = frase.substring(frase.indexOf(">")+1);
+			String primeiraPalavra = frase.split(" ")[0];
+
+			primeiraPalavra = primeiraPalavra.substring(0, primeiraPalavra.indexOf("<"));
+			primeiraPalavra = primeiraPalavra.replace("_", " ");
+			fraseSemMarcacao = fraseSemMarcacao.substring(fraseSemMarcacao.indexOf(primeiraPalavra));
+		}else if (!frase.split(" ")[0].equals(fraseSemMarcacao.split(" ")[0])){
+			String primeiraPalavra = frase.split(" ")[0];
+			fraseSemMarcacao = fraseSemMarcacao.substring(fraseSemMarcacao.indexOf(primeiraPalavra));
+		}
 		
 		for (int i =0; i < listaEntidadesTexto.size(); i++){
-			
-			if (frase.indexOf(listaEntidadesTexto.get(i)) >= 0){
-				retorno.add(listaEntidadesTexto.get(i));
+			if (!listaEntidadesTexto.get(i).equals("type")){
+				if (frase.indexOf(listaEntidadesTexto.get(i)) >= 0 || frase.indexOf(listaEntidadesTexto.get(i).replace(" ", "_")) >= 0 ){
+					retorno.add(listaEntidadesTexto.get(i));
+				}				
 			}
 		}
+		
+		for (int i =0; i < listaEntidadesTexto.size(); i++){
+			if (fraseSemMarcacao.indexOf(listaEntidadesTexto.get(i)) >= 0 || fraseSemMarcacao.indexOf(listaEntidadesTexto.get(i).replace(" ", "_")) >= 0 ){
+				if (!retorno.contains(listaEntidadesTexto.get(i))){
+					retorno.add(listaEntidadesTexto.get(i));					
+				}
+			}							
+		}
+		
 		return retorno;
 		
 	}
@@ -284,6 +317,7 @@ public class RisoTotMain2 {
 			
 		}		
 
+		retorno = retorno.replace("<RISOTime>", ConstantsRisoTOT.TAG_RISO_TEMPORAL);
 		return retorno;
 	
 	}
@@ -692,10 +726,10 @@ public class RisoTotMain2 {
 		return palavraTipo[palavraTipo.length-1];
 	}
 	
-	public static boolean fraseSemEntidade(String fraseComTags){
+	public static boolean fraseSemEntidade(String fraseComTags, String fraseSemMarcacao){
 		
 		String fraseSemTag = getFraseSemTags(fraseComTags);
-		ArrayList<String> listaEntidadesFrase = getEntidadesFrases(fraseSemTag);
+		ArrayList<String> listaEntidadesFrase = getEntidadesFrases(fraseSemTag, fraseSemMarcacao);
 		if (listaEntidadesFrase.isEmpty()){
 			return true;
 		}else{
@@ -985,7 +1019,12 @@ public class RisoTotMain2 {
 			}
 			// george remover
 			String[] listaAux = listaFrasesTemporaisTexto.get(i).split(ConstantsRisoTOT.TAG_RISO_TEMPORAL);
+			String[] listaAuxDE = listaFrasesTemporaisTexto.get(i).split(ConstantsRisoTOT.TAG_DE);
 			int contaOcorrenciasTemporais = listaAux.length-1;
+			int contaOcorrenciasTemporaisDE = listaAuxDE.length -1;
+			contaOcorrenciasTemporais = contaOcorrenciasTemporais - contaOcorrenciasTemporaisDE;
+			
+			
 			if ( getFraseSemTags(listaFrasesTemporaisTexto.get(i)).indexOf("associated wars") >= 0){
 				System.out.println();
 			}
@@ -994,7 +1033,7 @@ public class RisoTotMain2 {
 
 			case 0:
 				String fraseSemTags = getFraseSemTags(listaFrasesTemporaisTexto.get(i));
-				ArrayList<String> listaEntidadesFrase = getEntidadesFrases(fraseSemTags);
+				ArrayList<String> listaEntidadesFrase = getEntidadesFrases(fraseSemTags, listaFrasesTemporaisTextoSemMarcacao.get(i));
 				
 				
 				
@@ -1036,7 +1075,7 @@ public class RisoTotMain2 {
 			case 1:
 				
 				String fraseSemTagsCase1 = getFraseSemTags(listaFrasesTemporaisTexto.get(i));
-				ArrayList<String> listaEntidadesFraseCase1 = getEntidadesFrases(fraseSemTagsCase1);
+				ArrayList<String> listaEntidadesFraseCase1 = getEntidadesFrases(fraseSemTagsCase1, listaFrasesTemporaisTextoSemMarcacao.get(i));
 				
 				
 				ArrayList<String> listaEntDBPediaCase1 = getEntidadesTemporalizadasDBPedia(listaFrasesTemporaisTexto.get(i));
@@ -1047,27 +1086,49 @@ public class RisoTotMain2 {
 				
 				ArrayList<String> tagsTemporaisCase1 = new ArrayList<String>();
 				
-				boolean isDE = false;
+//				boolean isDE = false;
 				for (int j = 0; j < listaPalavrasCase1.length; j++){
 					if(listaPalavrasCase1[j].contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL)){
 						String entidadeAux = getDataSemTag(listaPalavrasCase1[j]);
-						if (listaPalavrasCase1[j].indexOf(ConstantsRisoTOT.TAG_DE) > -1){
-							isDE = true;
-						}
+//						if (listaPalavrasCase1[j].indexOf(ConstantsRisoTOT.TAG_DE) > -1){
+//							isDE = true;
+//						}
 						tagsTemporaisCase1.add (entidadeAux); 
 					}
 				}
 				
-				if (isDE){
-					listaEntidadesFraseCase1 = new ArrayList<String>();
-					listaEntidadesFraseCase1.addAll(tagsTemporaisCase1);
+				ArrayList<String> tagsDE  = new ArrayList<String>();
+				
+				if (tagsTemporaisCase1.size() > 1){
+					for (int j = 0; j < listaPalavrasCase1.length; j++){
+						if(listaPalavrasCase1[j].contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL)){
+							String entidadeAux = getDataSemTag(listaPalavrasCase1[j]);
+							if (listaPalavrasCase1[j].indexOf(ConstantsRisoTOT.TAG_DE) > -1){
+								tagsDE.add(entidadeAux); 
+							}
+						}
+					}
+					
 				}
+				
+				ArrayList<String> tagsAux = new ArrayList<String>();
+				tagsAux.addAll(tagsTemporaisCase1);
+				if (tagsTemporaisCase1.size() != tagsDE.size()){
+					for (int j = 0; j < tagsDE.size(); j++){
+						tagsTemporaisCase1.remove(tagsDE.get(j));
+					}
+				}
+					
+//				if (isDE){
+//					listaEntidadesFraseCase1 = new ArrayList<String>();
+//					listaEntidadesFraseCase1.addAll(tagsTemporaisCase1);
+//				}
 				
 				for (int j = 0; j < listaEntidadesFraseCase1.size(); j++){
 					addHashEntidadesDatas(listaEntidadesFraseCase1.get(j), tagsTemporaisCase1, listaEntDBPediaCase1);
 					if (listaEntDBPediaCase1.contains(getDataSemTag(listaEntidadesFraseCase1.get(j)))){
 						
-						if (contaOcorrenciasDatasTotal(listaEntidadesFraseCase1.get(j), listaEntidadesFraseCase1) == contaOcorrenciasDE(listaEntidadesFraseCase1.get(j), listaEntidadesFraseCase1)){
+						if (tagsDE.contains(listaEntidadesFraseCase1.get(j)) && tagsAux.size() == tagsDE.size()){
 //							ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(listaEntidadesFraseCase1.get(j));
 							ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(listaEntidadesFraseCase1.get(j));
 							
@@ -1103,7 +1164,7 @@ public class RisoTotMain2 {
 				String frase = listaFrasesTemporaisTexto.get(i);
 				
 				ArrayList<String> partesFrase = retornaFraseEmPartes(frase);
-				ArrayList<String> listaEntidadesDaFrase = getEntidadesFrases(getFraseSemTags(frase));
+				ArrayList<String> listaEntidadesDaFrase = getEntidadesFrases(getFraseSemTags(frase), listaFrasesTemporaisTextoSemMarcacao.get(i));
 				
 				ArrayList<String> listaEntDBPedia = getEntidadesTemporalizadasDBPedia(listaFrasesTemporaisTexto.get(i));
 				
@@ -1150,7 +1211,7 @@ public class RisoTotMain2 {
 						
 						if (parte.contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL)){
 							String parteSemTags = getFraseSemTags(parte);
-							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags);
+							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags, listaFrasesTemporaisTextoSemMarcacao.get(i));
 							if (contaOcorrenciasDatasTotal(frase, listaEntDBPedia) == contaOcorrenciasDE(frase, listaEntDBPedia)){
 								listaDatas = retornaDatasFrase(parteSemTags, listaEntDBPedia, true);								
 							}else{
@@ -1200,7 +1261,7 @@ public class RisoTotMain2 {
 						}else{
 							leuData = false;
 							String parteSemTags = getFraseSemTags(parte);
-							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags);
+							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags, listaFrasesTemporaisTextoSemMarcacao.get(i));
 							listaEntidadesAux.addAll(listaEntidades); // guarda para utilizar depois
 						}
 						
@@ -1285,7 +1346,7 @@ public class RisoTotMain2 {
 							
 						}else if (parte.contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL)){
 							String parteSemTags = getFraseSemTags(parte);
-							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags);
+							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags, listaFrasesTemporaisTextoSemMarcacao.get(i));
 							
 							if (contaOcorrenciasDatasTotal(frase, listaEntDBPedia) == contaOcorrenciasDE(frase, listaEntDBPedia)){
 								listaDatas = retornaDatasFrase(parteSemTags, listaEntDBPedia, true);								
@@ -1303,7 +1364,7 @@ public class RisoTotMain2 {
 							listaEntidadesAuxDatasEmSequencia.addAll(listaEntidades);
 							listaDatasPresentesEmPartesComDataAux.addAll(listaDatas);
 							
-							if (fraseSemEntidade(parte) && fraseSemVerbo(parte) || (parte.indexOf("<RISOTime_type=Pre-EMT>of") > -1 && parte.indexOf("<RISOTime_type=Pre-EMT>in".toUpperCase()) == -1
+							if (fraseSemEntidade(parte, listaFrasesTemporaisTextoSemMarcacao.get(i)) && fraseSemVerbo(parte) || (parte.indexOf("<RISOTime_type=Pre-EMT>of") > -1 && parte.indexOf("<RISOTime_type=Pre-EMT>in".toUpperCase()) == -1
 									&& parte.indexOf("<RISOTime_type=Pre-EMT>on".toUpperCase()) == -1)){
 								parteAtualSequencia = true;
 								
@@ -1486,7 +1547,7 @@ public class RisoTotMain2 {
 						}else{
 							leuData = false;
 							String parteSemTags = getFraseSemTags(parte);
-							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags);
+							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags, listaFrasesTemporaisTextoSemMarcacao.get(i));
 							listaEntidadesAux.addAll(listaEntidades); // guarda para utilizar depois
 							listaEntidadesAuxDatasEmSequencia.addAll(listaEntidades); // guarda para utilizar depois -- 2 - datas utilizado no fluxo de datas em sequencia
 							
@@ -1840,18 +1901,20 @@ public class RisoTotMain2 {
 	
 	private static void extracaoDeFrases(){
 		listaTodasAsFrasesTexto = conteudo.split("\\./.");
+		listaTodasAsFrasesTextoSemMarcacao = conteudoSemMarcacao.split("\\.");
 		System.out.println("Texto possui ["+ (listaTodasAsFrasesTexto.length - 1) +"] frases.");
 		for (int i = 0; i < listaTodasAsFrasesTexto.length; i++){
 			String frase = listaTodasAsFrasesTexto[i];
 			if (frase.indexOf(ConstantsRisoTOT.TAG_RISO_TEMPORAL) > 0){
 				listaFrasesTemporaisTexto.add(listaTodasAsFrasesTexto[i]);
+				listaFrasesTemporaisTextoSemMarcacao.add(listaTodasAsFrasesTextoSemMarcacao[i]);
 			}
 		}
 		System.out.println("Foram encontrados ["+listaFrasesTemporaisTexto.size()+"] frases temporais.");
 	}
 	
 	
-	private static void leituraDoArquivo(String nomeArquivo) throws FileNotFoundException{
+	private static void leituraDoArquivo(String nomeArquivo, String nomeArquivoSemMarcacao) throws FileNotFoundException{
         System.out.println("Lendo arquivo ["+nomeArquivo+"].");
 		BufferedReader br = new BufferedReader(new FileReader(nomeArquivo));   
         try {
@@ -1862,7 +1925,21 @@ public class RisoTotMain2 {
 		} catch (IOException e) {
 			System.out.println("Erro ao ler o arquivo ["+nomeArquivo+"]. ");
 			e.printStackTrace();
+		}
+        
+        
+        System.out.println("Lendo arquivo ["+nomeArquivoSemMarcacao+"].");
+		BufferedReader brSM = new BufferedReader(new FileReader(nomeArquivoSemMarcacao));   
+        try {
+			while(brSM.ready()){   
+				conteudoSemMarcacao = conteudoSemMarcacao.concat(brSM.readLine()).concat(" ");   
+			}
+			brSM.close();   		
+		} catch (IOException e) {
+			System.out.println("Erro ao ler o arquivo ["+nomeArquivoSemMarcacao+"]. ");
+			e.printStackTrace();
 		}   
+        
 	}
 	
 	public static void main(String[] args) {
@@ -1915,6 +1992,7 @@ public class RisoTotMain2 {
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_TesteProfessor.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
 		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_Napoleon_final.txt";
+		String nomeArquivoSemMarcacao = "C:\\Users\\george.marcelo.alves\\Dropbox\\Documentos_MoutyLingua\\Napoleon.txt";
 		String nomeArquivoOriginal = "Napoleon.txt";
 		String nomeArquivoSemPrefixo = "Napoleon";
 		
@@ -2012,7 +2090,7 @@ public class RisoTotMain2 {
 				
 			// com leitura do arquivo - INICIO 
 			try {
-				leituraDoArquivo(nomeArquivo);
+				leituraDoArquivo(nomeArquivo, nomeArquivoSemMarcacao);
 				carregaEntidadestexto(caminhoArquivoEntidades);
 				extracaoDeFrases();
 				criaRelacionamentos(nomeArquivo, nomeArquivoOriginal, nomeArquivoSemPrefixo);

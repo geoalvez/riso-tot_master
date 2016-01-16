@@ -35,6 +35,11 @@ public class CompareResults {
 				   if (linha.split(";").length != 5){
 					   continue;
 				   }
+				   
+				   if (linha.indexOf("Napoleon") < 0){
+					   continue;
+				   }
+				   
 				   String nomeTexto = linha.split(";")[0];
 				   String entidade  = linha.split(";")[2];
 				   String dataNormalizada = linha.split(";")[3];
@@ -54,10 +59,11 @@ public class CompareResults {
 					   String arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-1];
 					   
 						BufferedReader brAut = new BufferedReader(new FileReader(diretorioArquivoResultados + arquivoRecente));
+						boolean achouNorm = false;
+						boolean achouNaoNorm = false;
+						
 						while(brAut.ready()){
 							String linhaAux = brAut.readLine();
-							
-							System.out.println(linhaAux);
 							
 							
 							if (linhaAux.split(";").length != 3){
@@ -71,14 +77,24 @@ public class CompareResults {
 							
 							if (linhaOk.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNormalizada+"|") >= 0){
 								qtdAcertosNormalizado++;
+								achouNorm = true;
 							}
 							if (linhaOk.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNaoNormalizada+"|") >= 0){
 								qtdAcertosNaoNormalizado++;
+								achouNaoNorm = true;
 							}
 							
 						}
 						brAut.close();
-					   
+						System.out.println("-----");
+						if (!achouNorm){
+							System.out.println("Norm: "+entidade + "---"+dataNormalizada );
+						}
+						if (!achouNaoNorm){
+							System.out.println("N Norm: "+entidade + "---"+dataNaoNormalizada );
+						}
+						System.out.println("-----");
+
 				   }
 				   
 				   
