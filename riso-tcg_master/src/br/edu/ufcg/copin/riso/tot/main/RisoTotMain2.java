@@ -22,6 +22,7 @@ import br.edu.ufcg.copin.riso.tot.constants.ConstantsRisoTOT;
 import br.edu.ufcg.copin.riso.tot.dao.DBPediaDAO;
 import br.edu.ufcg.copin.riso.tot.entities.EntidadeEvento;
 import br.edu.ufcg.copin.riso.tot.jena.JenaOWL;
+import br.edu.ufcg.copin.riso.tot.utils.RisoTcgUtil;
 
 import com.hp.hpl.jena.ontology.OntModel;
 
@@ -197,6 +198,7 @@ public class RisoTotMain2 {
 	}
 	
 	public static ArrayList<String> getEntidadesFrases(String frase, String fraseSemMarcacao){
+		frase = frase.replace("[ note ] ", "");
 		ArrayList<String> retorno = new ArrayList<String>();
 		frase = frase.trim();
 		fraseSemMarcacao = fraseSemMarcacao.trim();
@@ -207,10 +209,14 @@ public class RisoTotMain2 {
 
 			ultimaPalavra = ultimaPalavra.substring(ultimaPalavra.indexOf(">")+1);
 			ultimaPalavra = ultimaPalavra.replace("_", " ");
-			fraseSemMarcacao = fraseSemMarcacao.substring(0, fraseSemMarcacao.lastIndexOf(ultimaPalavra)+ultimaPalavra.length());
+			if (fraseSemMarcacao.lastIndexOf(ultimaPalavra) >= 0){
+				fraseSemMarcacao = fraseSemMarcacao.substring(0, fraseSemMarcacao.lastIndexOf(ultimaPalavra)+ultimaPalavra.length());				
+			}
 		}else if (!frase.split(" ")[frase.split(" ").length-1].equals(fraseSemMarcacao.split(" ")[fraseSemMarcacao.split(" ").length-1])){
 			String ultimaPalavra = frase.split(" ")[frase.split(" ").length-1];
-			fraseSemMarcacao = fraseSemMarcacao.substring(0, fraseSemMarcacao.lastIndexOf(ultimaPalavra)+ultimaPalavra.length());
+			if (fraseSemMarcacao.lastIndexOf(ultimaPalavra) >= 0){
+				fraseSemMarcacao = fraseSemMarcacao.substring(0, fraseSemMarcacao.lastIndexOf(ultimaPalavra)+ultimaPalavra.length());				
+			}
 		}
 
 		
@@ -219,12 +225,18 @@ public class RisoTotMain2 {
 			frase = frase.substring(frase.indexOf(">")+1);
 			String primeiraPalavra = frase.split(" ")[0];
 
-			primeiraPalavra = primeiraPalavra.substring(0, primeiraPalavra.indexOf("<"));
+			if (primeiraPalavra.indexOf("<") >= 0){
+				primeiraPalavra = primeiraPalavra.substring(0, primeiraPalavra.indexOf("<"));				
+			}
 			primeiraPalavra = primeiraPalavra.replace("_", " ");
-			fraseSemMarcacao = fraseSemMarcacao.substring(fraseSemMarcacao.indexOf(primeiraPalavra));
+			if (fraseSemMarcacao.indexOf(primeiraPalavra) >=0){
+				fraseSemMarcacao = fraseSemMarcacao.substring(fraseSemMarcacao.indexOf(primeiraPalavra));				
+			}
 		}else if (!frase.split(" ")[0].equals(fraseSemMarcacao.split(" ")[0])){
 			String primeiraPalavra = frase.split(" ")[0];
-			fraseSemMarcacao = fraseSemMarcacao.substring(fraseSemMarcacao.indexOf(primeiraPalavra));
+			if (fraseSemMarcacao.indexOf(primeiraPalavra) >= 0){
+				fraseSemMarcacao = fraseSemMarcacao.substring(fraseSemMarcacao.indexOf(primeiraPalavra));				
+			}
 		}
 		
 		for (int i =0; i < listaEntidadesTexto.size(); i++){
@@ -1163,6 +1175,9 @@ public class RisoTotMain2 {
 				
 				String frase = listaFrasesTemporaisTexto.get(i);
 				
+				if (frase.contains("artillery")){
+					System.out.println();
+				}
 				ArrayList<String> partesFrase = retornaFraseEmPartes(frase);
 				ArrayList<String> listaEntidadesDaFrase = getEntidadesFrases(getFraseSemTags(frase), listaFrasesTemporaisTextoSemMarcacao.get(i));
 				
@@ -1194,7 +1209,8 @@ public class RisoTotMain2 {
 					break;
 				}
 
-				if (listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("after") || listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("before")){
+				if (listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("after") || listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("before")
+						|| listaFrasesTemporaisTexto.get(i).split(" ")[0].indexOf("/VBG") > 0){ // TODO  - verificar
 					boolean leuData = false;
 					ArrayList<String> listaEntidadesAux = new ArrayList<String>();
 					ArrayList<String> listaDatasAux = new ArrayList<String>();
@@ -1209,7 +1225,10 @@ public class RisoTotMain2 {
 //							
 //						}
 						
-						if (parte.contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL)){
+						int contaTemporal = parte.split(ConstantsRisoTOT.TAG_GENERICA).length-1;
+						int contaDE = parte.split(ConstantsRisoTOT.TAG_DE).length-1;
+						
+						if (parte.contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL) && contaTemporal != contaDE){
 							String parteSemTags = getFraseSemTags(parte);
 							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags, listaFrasesTemporaisTextoSemMarcacao.get(i));
 							if (contaOcorrenciasDatasTotal(frase, listaEntDBPedia) == contaOcorrenciasDE(frase, listaEntDBPedia)){
@@ -1222,8 +1241,10 @@ public class RisoTotMain2 {
 									String newData = "";
 									if (listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("after") ){
 										newData = substituiTypeDate(data, ConstantsRisoTOT.TAG_AFTER );										
-									}else{
+									}else if (listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("before") ){
 										newData = substituiTypeDate(data, ConstantsRisoTOT.TAG_BEFORE );																				
+									}else{
+										newData = data;
 									}
 									listaDatasAux.add(newData);
 								}
@@ -1907,7 +1928,63 @@ public class RisoTotMain2 {
 			String frase = listaTodasAsFrasesTexto[i];
 			if (frase.indexOf(ConstantsRisoTOT.TAG_RISO_TEMPORAL) > 0){
 				listaFrasesTemporaisTexto.add(listaTodasAsFrasesTexto[i]);
-				listaFrasesTemporaisTextoSemMarcacao.add(listaTodasAsFrasesTextoSemMarcacao[i]);
+//				if (listaTodasAsFrasesTexto[i].equals(" His/PRP$ powers/NNS were/VBD increased/VBN by/IN the/DT Constitution/NNP of/IN the/DT Year/NN including/VBG :/: Article/NN The/DT French/JJ people/NNS name/VBP :/: and/CC the/DT Senate/NNP proclaims/VBZ <RISOTime_type=DE>Napoleon</RISOTime> Bonaparte/NNP <RISOTime_type=DE>First_Consul</RISOTime> for/IN Life/NNP ")){
+//					System.out.println();
+//				}
+				boolean adicionou = false;
+//				String fraseSemTag = getFraseSemTags(listaTodasAsFrasesTexto[i]);
+				for (int j = 0; j < listaTodasAsFrasesTextoSemMarcacao.length; j++){
+					String fraseSemMarcacaoAux = listaTodasAsFrasesTextoSemMarcacao[j];
+//					if (fraseSemMarcacaoAux.indexOf("His powers") >= 0){
+//						System.out.println();
+//					}
+					String fraseComMarcacao = listaTodasAsFrasesTexto[i];
+					String[] palavrasFraseComMarcacao = fraseComMarcacao.split(" ");
+					boolean ok = true;
+
+					for (int k=0; k< palavrasFraseComMarcacao.length; k++){
+						String palavraSemTag = getFraseSemTags(palavrasFraseComMarcacao[k]);
+						palavraSemTag = getDataSemTag(palavraSemTag);
+						
+						palavraSemTag = RisoTcgUtil.retiraCaracteres(palavraSemTag);
+						if (fraseSemMarcacaoAux.indexOf(palavraSemTag) < 0 && RisoTcgUtil.naoPossuiCaracteresEspeciais(palavraSemTag) && !RisoTcgUtil.ehTagRisoES(palavraSemTag) ){
+							if (!palavraSemTag.equals("note")){
+								ok = false;
+								break;
+							}
+						}
+					}
+					if (ok){
+						listaFrasesTemporaisTextoSemMarcacao.add(fraseSemMarcacaoAux);
+						adicionou = true;
+						break;
+					}
+					
+					
+//					String[] palavrasFraseSemMarcacao = fraseSemMarcacaoAux.split(" ");
+//					for (int k=0; k < palavrasFraseSemMarcacao.length; k++){
+//						String palavraFraseSemMarcacao = palavrasFraseSemMarcacao[k];
+//						palavraFraseSemMarcacao = RisoTcgUtil.retiraCaracteres(palavraFraseSemMarcacao);
+//						if (palavraFraseSemMarcacao.indexOf(ConstantsRisoTOT.TAG_GENERICA)<0 && RisoTcgUtil.naoPossuiCaracteresEspeciais(palavraFraseSemMarcacao)){
+//							if (listaTodasAsFrasesTexto[i].indexOf(palavraFraseSemMarcacao) < 0){
+//								ok = false;
+//								System.out.println(palavraFraseSemMarcacao);
+//							}
+//						}
+//					}
+//					
+//					if (ok){
+//						listaFrasesTemporaisTextoSemMarcacao.add(fraseSemMarcacaoAux);
+//						break;
+//					}
+					
+				}
+				if (!adicionou){
+					listaFrasesTemporaisTextoSemMarcacao.add("");
+					System.out.println("Erro!! -> [" + listaTodasAsFrasesTexto[i]+"]");
+					
+				}
+				//listaFrasesTemporaisTextoSemMarcacao.add(listaTodasAsFrasesTextoSemMarcacao[i]);
 			}
 		}
 		System.out.println("Foram encontrados ["+listaFrasesTemporaisTexto.size()+"] frases temporais.");

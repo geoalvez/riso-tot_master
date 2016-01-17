@@ -1,6 +1,10 @@
 package br.edu.ufcg.copin.riso.tot.utils;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import br.edu.ufcg.copin.riso.tot.constants.ConstantsRisoTOT;
 
 public class RisoTcgUtil {
 	
@@ -77,6 +81,57 @@ public class RisoTcgUtil {
 		numMes = hashMesNumMes.get(numMes);
 				
 		return numMes;
+		
+	}
+	
+	public static String retiraCaracteres(String caracteres){
+		
+		caracteres = caracteres.replaceAll(":", "");
+		caracteres = caracteres.replaceAll(",", "");
+		caracteres = caracteres.replaceAll(";", "");
+		caracteres = caracteres.replaceAll("$", "");
+		caracteres = caracteres.replaceAll("%", "");
+		caracteres = caracteres.replaceAll("@", "");
+		caracteres = caracteres.replaceAll("\\(", "");
+		caracteres = caracteres.replaceAll("\\)", "");
+		caracteres = caracteres.replaceAll("\\[", "");
+		caracteres = caracteres.replaceAll("\\]", "");
+		caracteres = caracteres.replaceAll("\\{", "");
+		caracteres = caracteres.replaceAll("\\}", "");
+		caracteres = caracteres.replaceAll("\\\\", "");
+		caracteres = caracteres.replaceAll("/", "");
+
+		caracteres = caracteres.replaceAll("\\?", "");
+		caracteres = caracteres.replaceAll("\\!", "");
+
+		return caracteres;
+	}
+	
+
+	public static boolean naoPossuiCaracteresEspeciais(String caracteres){
+		caracteres = caracteres.toLowerCase();
+		
+		//String dataAux = data.split(" < X < ")[0];
+		
+		
+		Pattern p = Pattern.compile("[A-Za-z0-9]+");
+		Matcher m = p.matcher(caracteres);
+		
+		return m.matches();
+		
+	}
+	
+	public static boolean ehTagRisoES (String caracteres){
+		
+		String[] lista = {"CC","CD","DT","EX","FW","IN","JJ","JJR","JJS","LS","MD","NN","NNS","NNP","NNPS","PDT","POS","PRP","PRPS","RB","RBR","RBS","RP","TO","UH","VB","VBD","VBG","VBN","VBP","VBZ","WDT","WP","WPS","WRB", "NP"};
+		
+		for (int i =0; i < lista.length; i++){
+			if (caracteres.equals(lista[i])){
+				return true;
+			}
+			
+		}
+		return false;
 		
 	}
 	

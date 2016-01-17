@@ -86,7 +86,7 @@ public class CompareResults {
 							
 						}
 						brAut.close();
-						System.out.println("-----");
+						System.out.println("Arquivo ----- " + arquivoRecente);
 						if (!achouNorm){
 							System.out.println("Norm: "+entidade + "---"+dataNormalizada );
 						}
