@@ -61,8 +61,8 @@ public class CompareResults {
 					   qtdTotalSemDBP++;
 				   }
 				   
-				   if (entidade.equals("Concordat of")){
-					   if (dataNaoNormalizada.indexOf("1801") >= 0){
+				   if (entidade.equals("Joséphine")){
+					   if (dataNaoNormalizada.indexOf("in 1796") >= 0){
 						   System.out.println();
 					   }
 				   }
@@ -84,14 +84,14 @@ public class CompareResults {
 					   if (new File(diretorioArquivoResultados + arquivoRecente).isDirectory()){
 						   arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-2];
 					   }
-						BufferedReader brAut = new BufferedReader(new InputStreamReader(new FileInputStream(diretorioArquivoResultados + arquivoRecente),"UTF-8"));
+						BufferedReader brAut = new BufferedReader(new InputStreamReader(new FileInputStream(diretorioArquivoResultados + arquivoRecente),"Cp1252"));
 						boolean achouNorm = false;
 						boolean achouNaoNorm = false;
 						int cont = 0;
 						while(brAut.ready()){
 							cont++;
 							
-							if (cont == 1060){
+							if (cont == 498){
 								System.out.println();
 							}
 							String linhaAux = brAut.readLine();
@@ -124,6 +124,7 @@ public class CompareResults {
 								String dataNormalizadaFormataComZero = RisoTcgUtil.incluiZero(dataNormalizada);
 								
 								if (linhaFormataComZero.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNormalizadaFormataComZero.trim()+"|") >= 0){
+									achouNorm = true;
 									qtdAcertosNormalizado++;									
 									if (!dataNormalizada.equals(dataNaoNormalizada)){
 										qtdAcertosNormalizadoSemDBP++;
@@ -163,6 +164,10 @@ public class CompareResults {
 									}
 									
 								}
+							}
+							
+							if (achouNorm || achouNaoNorm){
+								break;
 							}
 							
 						}

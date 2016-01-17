@@ -1044,7 +1044,7 @@ public class RisoTotMain2 {
 				System.out.println();
 			}
 			
-			if (listaFrasesTemporaisTexto.get(i).indexOf("After/IN the/DT Treaty/NNP of/IN Schönbrunn/NNP in/IN <RISOTime_type=EPT-EMT>the_fall_of_1809</RISOTime> :/: he/PRP divorced/VBD Josephine/NNP and/CC married/VBN <RISOTime_type=DE>Austria</RISOTime>n/NNP princess/NN Marie/NNP Lo/NNP <RISOTime_type=DE>uise</RISOTime> <RISOTime_type=Pre-EMT>in_1810</RISOTime>")>= 0){
+			if (listaFrasesTemporaisTexto.get(i).indexOf("<RISOTime_type=EPT-EMT>In_early_1813</RISOTime> :/: <RISOTime_type=DE>Prussia</RISOTime> and/CC <RISOTime_type=DE>Russia</RISOTime> joined/VBD forces/NNS to/TO fight/VB against/IN <RISOTime_type=DE>France</RISOTime> :/: with/IN the/DT <RISOTime_type=DE>Austria</RISOTime>ns/NNP also/RB joining/VBG this/DT <RISOTime_type=DE>Sixth_Coalition</RISOTime> <RISOTime_type=CE>later_in_the_year</RISOTime>")>= 0){
 				System.out.println();
 			}
 			switch (contaOcorrenciasTemporais) {
@@ -1371,7 +1371,7 @@ public class RisoTotMain2 {
 							listaDatasPresentesEmPartesComDataAux = new ArrayList<String>();
 							
 							
-						}else if (parte.contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL)){
+						}else if (parte.contains(ConstantsRisoTOT.TAG_RISO_TEMPORAL) && contaOcorrenciasDatasTotal(parte, listaEntDBPedia) - contaOcorrenciasDE(parte, listaEntDBPedia) > 0){
 							String parteSemTags = getFraseSemTags(parte);
 							ArrayList<String> listaEntidades = getEntidadesFrases(parteSemTags, listaFrasesTemporaisTextoSemMarcacao.get(i));
 							
