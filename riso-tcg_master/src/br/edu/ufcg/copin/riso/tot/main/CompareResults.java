@@ -61,8 +61,8 @@ public class CompareResults {
 					   qtdTotalSemDBP++;
 				   }
 				   
-				   if (entidade.equals("Joséphine")){
-					   if (dataNaoNormalizada.indexOf("in 1796") >= 0){
+				   if (entidade.equals("Concordat of")){
+					   if (dataNaoNormalizada.indexOf("1801") >= 0){
 						   System.out.println();
 					   }
 				   }
@@ -75,11 +75,15 @@ public class CompareResults {
 				   File fileDiretorioArquivoResultados = new File (diretorioArquivoResultados);
 				   
 				   if (fileDiretorioArquivoResultados.isDirectory()){
+					   
 					   String[] arquivosEntidadesDatas = fileDiretorioArquivoResultados.list();
+					   
 					   Arrays.sort(arquivosEntidadesDatas);
 					   
 					   String arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-1];
-					   
+					   if (new File(diretorioArquivoResultados + arquivoRecente).isDirectory()){
+						   arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-2];
+					   }
 						BufferedReader brAut = new BufferedReader(new InputStreamReader(new FileInputStream(diretorioArquivoResultados + arquivoRecente),"UTF-8"));
 						boolean achouNorm = false;
 						boolean achouNaoNorm = false;
@@ -87,12 +91,12 @@ public class CompareResults {
 						while(brAut.ready()){
 							cont++;
 							
-							if (cont == 575){
+							if (cont == 1060){
 								System.out.println();
 							}
 							String linhaAux = brAut.readLine();
 							
-							if (linhaAux.indexOf("Joséphine") >= 0){
+							if (linhaAux.indexOf("Egypt") >= 0){
 								System.out.println();
 							}
 							
@@ -108,7 +112,7 @@ public class CompareResults {
 							if (linhaOk.indexOf("Joséphine") >= 0){
 								System.out.println();
 							}
-							if (linhaOk.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNormalizada+"|") >= 0){
+							if (linhaOk.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNormalizada.trim()+"|") >= 0){
 								qtdAcertosNormalizado++;
 								achouNorm = true;
 							   if (!dataNormalizada.equals(dataNaoNormalizada)){
@@ -119,7 +123,7 @@ public class CompareResults {
 								String linhaFormataComZero = RisoTcgUtil.incluiZero(linhaOk);
 								String dataNormalizadaFormataComZero = RisoTcgUtil.incluiZero(dataNormalizada);
 								
-								if (linhaFormataComZero.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNormalizadaFormataComZero+"|") >= 0){
+								if (linhaFormataComZero.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNormalizadaFormataComZero.trim()+"|") >= 0){
 									qtdAcertosNormalizado++;									
 									if (!dataNormalizada.equals(dataNaoNormalizada)){
 										qtdAcertosNormalizadoSemDBP++;
@@ -129,12 +133,36 @@ public class CompareResults {
 								
 							}
 							
-							if (linhaOk.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNaoNormalizada+"|") >= 0){
+							if (linhaOk.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNaoNormalizada.trim()+"|") >= 0){
 								qtdAcertosNaoNormalizado++;
 								achouNaoNorm = true;
 							   if (!dataNormalizada.equals(dataNaoNormalizada)){
 								   qtdAcertosNaoNormalizadoSemDBP++;
 							   }
+							}else{
+								if (RisoTcgUtil.validaSemPreposicoes(linhaOk, entidade, dataNaoNormalizada)){
+									qtdAcertosNaoNormalizado++;
+									achouNaoNorm = true;
+									if (!dataNormalizada.equals(dataNaoNormalizada)){
+										qtdAcertosNaoNormalizadoSemDBP++;
+									}
+									
+								}else{
+									
+									String  datasNaoNormalizadasAux = linhaOk.split("\\;")[2];
+									String[] listaDatasNormalizadasAux = datasNaoNormalizadasAux.split("\\|");
+									for (int i = 0; i < listaDatasNormalizadasAux.length; i++){
+										if (linhaOk.indexOf(entidade.trim()+";") >= 0 && listaDatasNormalizadasAux[i].indexOf(dataNaoNormalizada) >= 0 && !listaDatasNormalizadasAux[i].isEmpty()){
+											qtdAcertosNaoNormalizado++;
+											achouNaoNorm = true;
+											if (!dataNormalizada.equals(dataNaoNormalizada)){
+												qtdAcertosNaoNormalizadoSemDBP++;
+											}
+											break;
+										}
+									}
+									
+								}
 							}
 							
 						}

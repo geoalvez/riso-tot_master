@@ -2,9 +2,10 @@ package br.edu.ufcg.copin.riso.tot.main;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class GeraArquivoFinalRISOTaggerTT {
@@ -36,7 +37,7 @@ public class GeraArquivoFinalRISOTaggerTT {
 
         try {
 			/* Lendo arquivo com a saida do RISO-TT */
-			BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\george.marcelo.alves\\Dropbox\\RisoTT_Saida\\"+arquivoGeradoPeloRisoTT));   
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Users\\george.marcelo.alves\\Dropbox\\RisoTT_Saida\\"+arquivoGeradoPeloRisoTT),"UTF-8"));
 				while(br.ready()){   
 					conteudo = conteudo.concat(br.readLine()).concat(" ");   
 				}
@@ -96,7 +97,7 @@ public class GeraArquivoFinalRISOTaggerTT {
         /* Lendo arquivo gerado pelo POS Tagger (o pos tagger devera ter sido executado para prosseguir para o passo a seguir ) */
 		conteudo = "";
 		try {
-			BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\george.marcelo.alves\\Dropbox\\MountyTagger_saida\\"+arquivoGeradoPosTaggerParaLeituraDoTCG));   
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Users\\george.marcelo.alves\\Dropbox\\MountyTagger_saida\\"+arquivoGeradoPosTaggerParaLeituraDoTCG),"UTF-8"));
 				while(br.ready()){   
 					conteudo = conteudo.concat(br.readLine()).concat(" ");   
 				}

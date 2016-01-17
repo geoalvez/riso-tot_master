@@ -3,11 +3,13 @@ package br.edu.ufcg.copin.riso.tot.main;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -132,14 +134,15 @@ public class RisoTotMain2 {
 	}
 	public static void carregaEntidadestexto(String caminhoArquivo){
 		try {
-			FileReader fr = new FileReader(caminhoArquivo);
-			BufferedReader br = new BufferedReader( fr );
+			// FileReader fr = new FileReader(caminhoArquivo);
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(caminhoArquivo),"UTF-8"));
+
 			while( br.ready() ){
 				String linha = br.readLine();
 				listaEntidadesTexto.add(linha);
 			}
 			br.close();
-			fr.close();
+//			fr.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1041,7 +1044,7 @@ public class RisoTotMain2 {
 				System.out.println();
 			}
 			
-			if (listaFrasesTemporaisTexto.get(i).indexOf("Serving/VBG in/IN the/DT French/JJ army/NN as/IN an/DT <RISOTime_type=DE>artillery</RISOTime> officer/NN :/: <RISOTime_type=DE>Napoleon</RISOTime> supported/VBD the/DT Revolution/NNP from/IN the/DT <RISOTime_type=DE>utse</RISOTime>t/NNP <RISOTime_type=Pre-EMT>in_1789</RISOTime> and/CC tried/VBD to/TO spread/VB its/PRP$ ideals/NNS to/TO <RISOTime_type=DE>Corsica</RISOTime> :/: but/CC was/VBD banished/VBN from/IN the/DT island/NN <RISOTime_type=Pre-EMT>in_1793</RISOTime>")>= 0){
+			if (listaFrasesTemporaisTexto.get(i).indexOf("After/IN the/DT Treaty/NNP of/IN Schönbrunn/NNP in/IN <RISOTime_type=EPT-EMT>the_fall_of_1809</RISOTime> :/: he/PRP divorced/VBD Josephine/NNP and/CC married/VBN <RISOTime_type=DE>Austria</RISOTime>n/NNP princess/NN Marie/NNP Lo/NNP <RISOTime_type=DE>uise</RISOTime> <RISOTime_type=Pre-EMT>in_1810</RISOTime>")>= 0){
 				System.out.println();
 			}
 			switch (contaOcorrenciasTemporais) {
@@ -1186,7 +1189,7 @@ public class RisoTotMain2 {
 				
 				ArrayList<String> listaEntDBPedia = getEntidadesTemporalizadasDBPedia(listaFrasesTemporaisTexto.get(i));
 				
-				if (contaOcorrenciasTemporais == listaEntDBPedia.size() && listaEntDBPedia.size() > 0){
+				if (contaOcorrenciasDatasTotal(frase, listaEntidadesDaFrase) == contaOcorrenciasDE(frase, listaEntidadesDaFrase) && listaEntDBPedia.size() > 0){
 					for (String entidade : listaEntDBPedia){
 						
 						if (contaOcorrenciasDatasTotal(frase, listaEntidadesDaFrase) == contaOcorrenciasDE(frase, listaEntidadesDaFrase)){
@@ -2001,8 +2004,8 @@ public class RisoTotMain2 {
 	
 	private static void leituraDoArquivo(String nomeArquivo, String nomeArquivoSemMarcacao) throws FileNotFoundException{
         System.out.println("Lendo arquivo ["+nomeArquivo+"].");
-		BufferedReader br = new BufferedReader(new FileReader(nomeArquivo));   
-        try {
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(nomeArquivo),"UTF-8"));
 			while(br.ready()){   
 				conteudo = conteudo.concat(br.readLine()).concat(" ");   
 			}
@@ -2014,8 +2017,8 @@ public class RisoTotMain2 {
         
         
         System.out.println("Lendo arquivo ["+nomeArquivoSemMarcacao+"].");
-		BufferedReader brSM = new BufferedReader(new FileReader(nomeArquivoSemMarcacao));   
         try {
+    		BufferedReader brSM = new BufferedReader(new InputStreamReader(new FileInputStream(nomeArquivoSemMarcacao),"UTF-8"));
 			while(brSM.ready()){   
 				conteudoSemMarcacao = conteudoSemMarcacao.concat(brSM.readLine()).concat(" ");   
 			}

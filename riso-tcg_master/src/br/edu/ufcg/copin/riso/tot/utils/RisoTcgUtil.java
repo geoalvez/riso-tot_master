@@ -166,6 +166,26 @@ public class RisoTcgUtil {
 		
 	}
 	
+	public static boolean validaSemPreposicoes(String linha, String entidade, String dataNaoNormalizada){
+		String linhaAux = linha + "";
+		String[] pref = {"weeks from","until","about","nearly","almost","at least","In a","on the","since","from","to","by","after","early","between","before","next","in","on","at","of"};
+		
+
+		for (int i = 0; i < pref.length; i++){
+		
+			linhaAux = linhaAux.replaceAll("\\|"+pref[i], "\\|");
+			linhaAux = linhaAux.replaceAll("\\| ", "\\|");
+			
+		}
+		
+		if (linhaAux.indexOf(entidade+";") >= 0 && linhaAux.indexOf("|"+dataNaoNormalizada+"|") >= 0){
+			return true;
+		}
+		
+		
+		return false;
+	}
+	
 	
 	
 	
