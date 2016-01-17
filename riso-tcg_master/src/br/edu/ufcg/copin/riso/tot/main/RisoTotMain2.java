@@ -1041,6 +1041,9 @@ public class RisoTotMain2 {
 				System.out.println();
 			}
 			
+			if (listaFrasesTemporaisTexto.get(i).indexOf("Serving/VBG in/IN the/DT French/JJ army/NN as/IN an/DT <RISOTime_type=DE>artillery</RISOTime> officer/NN :/: <RISOTime_type=DE>Napoleon</RISOTime> supported/VBD the/DT Revolution/NNP from/IN the/DT <RISOTime_type=DE>utse</RISOTime>t/NNP <RISOTime_type=Pre-EMT>in_1789</RISOTime> and/CC tried/VBD to/TO spread/VB its/PRP$ ideals/NNS to/TO <RISOTime_type=DE>Corsica</RISOTime> :/: but/CC was/VBD banished/VBN from/IN the/DT island/NN <RISOTime_type=Pre-EMT>in_1793</RISOTime>")>= 0){
+				System.out.println();
+			}
 			switch (contaOcorrenciasTemporais) {
 
 			case 0:
@@ -1210,7 +1213,7 @@ public class RisoTotMain2 {
 				}
 
 				if (listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("after") || listaFrasesTemporaisTexto.get(i).toLowerCase().startsWith("before")
-						|| listaFrasesTemporaisTexto.get(i).split(" ")[0].indexOf("/VBG") > 0){ // TODO  - verificar
+						|| listaFrasesTemporaisTexto.get(i).trim().split(" ")[0].indexOf("/VBG") > 0){ // TODO  - verificar
 					boolean leuData = false;
 					ArrayList<String> listaEntidadesAux = new ArrayList<String>();
 					ArrayList<String> listaDatasAux = new ArrayList<String>();
@@ -1713,7 +1716,7 @@ public class RisoTotMain2 {
 			}
 			
 		}
-	    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMddhh24mmss");
+	    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMddHHmmss");
 		String nomeArquivo = "Entidades_Datas_"+dt.format(new Date())+".csv";
 
         File file = new File("C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\"+nomeArquivo);  
@@ -1724,7 +1727,7 @@ public class RisoTotMain2 {
 			
 			
 			for (String entity : hashEntidadesDatas.keySet()) {
-				String line = entity + ";";
+				String line = entity + ";|";
 				String datasNaoNormalizadas = ""; 
 				
 				int cnt = 0;
@@ -1798,7 +1801,7 @@ public class RisoTotMain2 {
 		        if (cnt == 0){
 		        	line = line + "Data Especial não mapeada na DBPedia";
 		        }
-		        writer.write(line+";"+datasNaoNormalizadas);
+		        writer.write(line+";|"+datasNaoNormalizadas+"|");
 		        writer.newLine();  						
 			}				
 
@@ -1988,6 +1991,11 @@ public class RisoTotMain2 {
 			}
 		}
 		System.out.println("Foram encontrados ["+listaFrasesTemporaisTexto.size()+"] frases temporais.");
+		for (int i = 0; i < listaFrasesTemporaisTexto.size(); i++){
+			System.out.println("------");
+			System.out.println(i+")"+listaFrasesTemporaisTexto.get(i));
+			System.out.println(i+")"+listaFrasesTemporaisTextoSemMarcacao.get(i));
+		}
 	}
 	
 	

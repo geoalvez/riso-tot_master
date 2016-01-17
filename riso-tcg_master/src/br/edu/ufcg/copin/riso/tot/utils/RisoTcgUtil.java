@@ -135,6 +135,37 @@ public class RisoTcgUtil {
 		
 	}
 	
+	public static int contaOcorrencias(String data, String caractere){
+		
+		int total=0;
+		for (int i=0;i<=data.length()-1;i++) {
+			if (data.substring(i,i+1).equalsIgnoreCase(caractere))
+				total=total+1;
+		}
+		return total;		
+	}
+	
+	public static String incluiZero (String data){
+		
+		if (contaOcorrencias(data, "-") == 2 || contaOcorrencias(data, "-") == 4){
+			data = data.replace("-1-", "-01-");
+			data = data.replace("-2-", "-02-");
+			data = data.replace("-3-", "-03-");
+			data = data.replace("-4-", "-04-");
+			data = data.replace("-5-", "-05-");
+			data = data.replace("-6-", "-06-");
+			data = data.replace("-7-", "-07-");
+			data = data.replace("-8-", "-08-");
+			data = data.replace("-9-", "-09-");
+
+			return data;
+			
+		}
+		
+		return data;
+		
+	}
+	
 	
 	
 	

@@ -2,9 +2,15 @@ package br.edu.ufcg.copin.riso.tot.main;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
+
+import sun.text.normalizer.Trie.DataManipulate;
+
+import br.edu.ufcg.copin.riso.tot.utils.RisoTcgUtil;
 
 public class CompareResults {
 	
@@ -17,6 +23,11 @@ public class CompareResults {
 		double qtdTotal = 0;
 		double qtdAcertosNormalizado = 0;
 		double qtdAcertosNaoNormalizado = 0;
+		
+		double qtdTotalSemDBP = 0;
+		double qtdAcertosNormalizadoSemDBP = 0;
+		double qtdAcertosNaoNormalizadoSemDBP = 0;
+		
 		//for (int i = 0; i < args.length; i++){
 			
 			//String nomeArquivo = args[i];
@@ -46,6 +57,17 @@ public class CompareResults {
 				   String dataNaoNormalizada = linha.split(";")[4];
 				   qtdTotal++;
 				   
+				   if (!dataNormalizada.equals(dataNaoNormalizada)){
+					   qtdTotalSemDBP++;
+				   }
+				   
+				   if (entidade.equals("Joséphine")){
+					   if (dataNaoNormalizada.indexOf("in 1796") >= 0){
+						   System.out.println();
+					   }
+				   }
+				   
+				   
 				   String diretorioArquivoResultados = diretorioResultados.replace("<DOC_DIRETORIO>", nomeTexto);
 				   if (nomeTexto.equals("WW1")){
 					   System.out.println();
@@ -58,13 +80,21 @@ public class CompareResults {
 					   
 					   String arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-1];
 					   
-						BufferedReader brAut = new BufferedReader(new FileReader(diretorioArquivoResultados + arquivoRecente));
+						BufferedReader brAut = new BufferedReader(new InputStreamReader(new FileInputStream(diretorioArquivoResultados + arquivoRecente),"UTF-8"));
 						boolean achouNorm = false;
 						boolean achouNaoNorm = false;
-						
+						int cont = 0;
 						while(brAut.ready()){
+							cont++;
+							
+							if (cont == 575){
+								System.out.println();
+							}
 							String linhaAux = brAut.readLine();
 							
+							if (linhaAux.indexOf("Joséphine") >= 0){
+								System.out.println();
+							}
 							
 							if (linhaAux.split(";").length != 3){
 								continue;
@@ -75,13 +105,36 @@ public class CompareResults {
 							
 							String linhaOk = entidadeAut + ";"+"|"+datasNormalizadasAut+"|"+";"+"|"+datasNaoNormalizadasAut+"|";
 							
+							if (linhaOk.indexOf("Joséphine") >= 0){
+								System.out.println();
+							}
 							if (linhaOk.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNormalizada+"|") >= 0){
 								qtdAcertosNormalizado++;
 								achouNorm = true;
+							   if (!dataNormalizada.equals(dataNaoNormalizada)){
+								   qtdAcertosNormalizadoSemDBP++;
+							   }
+								
+							}else{
+								String linhaFormataComZero = RisoTcgUtil.incluiZero(linhaOk);
+								String dataNormalizadaFormataComZero = RisoTcgUtil.incluiZero(dataNormalizada);
+								
+								if (linhaFormataComZero.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNormalizadaFormataComZero+"|") >= 0){
+									qtdAcertosNormalizado++;									
+									if (!dataNormalizada.equals(dataNaoNormalizada)){
+										qtdAcertosNormalizadoSemDBP++;
+									}
+								}
+								
+								
 							}
+							
 							if (linhaOk.indexOf(entidade+";") >= 0 && linhaOk.indexOf("|"+dataNaoNormalizada+"|") >= 0){
 								qtdAcertosNaoNormalizado++;
 								achouNaoNorm = true;
+							   if (!dataNormalizada.equals(dataNaoNormalizada)){
+								   qtdAcertosNaoNormalizadoSemDBP++;
+							   }
 							}
 							
 						}
@@ -93,6 +146,18 @@ public class CompareResults {
 						if (!achouNaoNorm){
 							System.out.println("N Norm: "+entidade + "---"+dataNaoNormalizada );
 						}
+						
+						if (!achouNorm){
+							if (!dataNormalizada.equals(dataNaoNormalizada)){
+								System.out.println("Norm (N DBP): "+entidade + "---"+dataNormalizada );								
+							}
+						}
+						if (!achouNaoNorm){
+							if (!dataNormalizada.equals(dataNaoNormalizada)){
+								System.out.println("N Norm (N DBP): "+entidade + "---"+dataNaoNormalizada );								
+							}
+						}
+
 						System.out.println("-----");
 
 				   }
@@ -104,10 +169,17 @@ public class CompareResults {
 			   System.out.println("Qtd linhas total = " + qtdTotal);
 			   System.out.println("Qtd acerto normalizadas = " + qtdAcertosNormalizado);
 			   System.out.println("Qtd acerto nao-normalizadas = " + qtdAcertosNaoNormalizado);
-				   
+
+			   
+			   System.out.println("Qtd linhas total (Sem DBPEdia)= " + qtdTotalSemDBP);
+			   System.out.println("Qtd acerto normalizadas (Sem DBPEdia)= " + qtdAcertosNormalizadoSemDBP);
+			   System.out.println("Qtd acerto nao-normalizadas (Sem DBPEdia)= " + qtdAcertosNaoNormalizadoSemDBP);
+			   
 			   System.out.println("% acertos norm = " + (qtdAcertosNormalizado / qtdTotal)*100+"%");
 			   System.out.println("% acertos ñ norm = " + (qtdAcertosNaoNormalizado / qtdTotal)*100+"%");
 				   
+			   System.out.println("% acertos norm (Sem DBPEdia)= " + (qtdAcertosNormalizadoSemDBP / qtdTotalSemDBP)*100+"%");
+			   System.out.println("% acertos ñ norm (Sem DBPEdia)= " + (qtdAcertosNaoNormalizadoSemDBP / qtdTotalSemDBP)*100+"%");
 				   
 				
 			} catch (IOException e) {
