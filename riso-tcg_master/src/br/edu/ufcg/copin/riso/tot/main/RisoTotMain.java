@@ -19,6 +19,7 @@ public class RisoTotMain {
 	private static String[] listaTodasAsFrasesTexto;
 	private static ArrayList<String> listaFrasesTemporaisTexto = new ArrayList<String>();
 	
+	
 	private static ArrayList<String> listaEntidadesTexto = new ArrayList<String>();
 	
 	private static void carregaEntidadestexto(String caminhoArquivo){

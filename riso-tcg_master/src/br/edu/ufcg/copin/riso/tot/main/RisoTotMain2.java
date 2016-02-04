@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -33,6 +35,9 @@ public class RisoTotMain2 {
 
 	private static String conteudo = "";
 	private static String conteudoSemMarcacao = "";
+
+	private static String[] entRemover = {"year","note","ft","next year","days","mi","uise","use","re","st","end of","DOC","unse","ve","DOCID"};
+	
 
 	private static String[] listaConjuncoes = {"and/CC","or/CC","but/CC"};
 	
@@ -201,6 +206,9 @@ public class RisoTotMain2 {
 	}
 	
 	public static ArrayList<String> getEntidadesFrases(String frase, String fraseSemMarcacao){
+		if (frase.indexOf("Louis") >=0){
+			System.out.println();
+		}
 		frase = frase.replace("[ note ] ", "");
 		ArrayList<String> retorno = new ArrayList<String>();
 		frase = frase.trim();
@@ -242,18 +250,78 @@ public class RisoTotMain2 {
 			}
 		}
 		
+		Collections.sort(listaEntidadesTexto, new Comparator<String>() {
+			public int compare(String str1, String str2) {
+				return str2.length() - str1.length();
+			}
+		});
+		
+		String fraseAux = frase + "";
 		for (int i =0; i < listaEntidadesTexto.size(); i++){
+			if (frase.indexOf("Louis XVI") >= 0){
+				if (listaEntidadesTexto.get(i).equals("Treaty of Amiens")){
+					System.out.println();
+				}
+				if (listaEntidadesTexto.get(i).equals("Amiens")){
+					System.out.println();				
+				}
+				if (listaEntidadesTexto.get(i).equals("Treaty")){
+					System.out.println();				
+				}
+				
+			}
+			
 			if (!listaEntidadesTexto.get(i).equals("type")){
-				if (frase.indexOf(listaEntidadesTexto.get(i)) >= 0 || frase.indexOf(listaEntidadesTexto.get(i).replace(" ", "_")) >= 0 ){
-					retorno.add(listaEntidadesTexto.get(i));
+				if (fraseAux.indexOf(listaEntidadesTexto.get(i)) >= 0 || fraseAux.indexOf(listaEntidadesTexto.get(i).replace(" ", "_")) >= 0 ){
+					if (!RisoTcgUtil.ehMes(listaEntidadesTexto.get(i))){
+						if (listaEntidadesTexto.get(i).equals("Amiens")){
+							System.out.println();
+						}
+						
+						if (listaEntidadesTexto.get(i).equals("Treaty of Amiens")){
+							System.out.println();
+						}
+						
+						fraseAux = fraseAux.replace(listaEntidadesTexto.get(i), "");
+						fraseAux = fraseAux.replace(listaEntidadesTexto.get(i).replace(" ", "_"), "");
+						retorno.add(listaEntidadesTexto.get(i));						
+					}
 				}				
 			}
 		}
 		
+		fraseAux = fraseSemMarcacao + "";
 		for (int i =0; i < listaEntidadesTexto.size(); i++){
-			if (fraseSemMarcacao.indexOf(listaEntidadesTexto.get(i)) >= 0 || fraseSemMarcacao.indexOf(listaEntidadesTexto.get(i).replace(" ", "_")) >= 0 ){
+			if (listaEntidadesTexto.get(i).equals("Schönbrunn")){
+				System.out.println();
+			}
+			
+			if (listaEntidadesTexto.get(i).equals("Treaty of Schönbrunn")){
+				System.out.println();
+			}
+			
+			if (listaEntidadesTexto.get(i).equals("Treaty")){
+				System.out.println();				
+			}
+			
+			
+			if (fraseAux.indexOf(listaEntidadesTexto.get(i)) >= 0 || fraseAux.indexOf(listaEntidadesTexto.get(i).replace(" ", "_")) >= 0 ){
 				if (!retorno.contains(listaEntidadesTexto.get(i))){
-					retorno.add(listaEntidadesTexto.get(i));					
+					if (!RisoTcgUtil.ehMes(listaEntidadesTexto.get(i))){
+						if (listaEntidadesTexto.get(i).equals("Schönbrunn")){
+							System.out.println();
+						}
+						
+						if (listaEntidadesTexto.get(i).equals("Treaty of Schönbrunn")){
+							System.out.println();
+						}
+						fraseAux = fraseAux.replace(listaEntidadesTexto.get(i), "");
+						fraseAux = fraseAux.replace(listaEntidadesTexto.get(i).replace(" ", "_"), "");
+						retorno.add(listaEntidadesTexto.get(i));					
+						
+					}
+				}else{
+					fraseAux = fraseAux.replace(listaEntidadesTexto.get(i), "");					
 				}
 			}							
 		}
@@ -631,21 +699,31 @@ public class RisoTotMain2 {
 		if (entidade.equals("Napoleon")){
 			System.out.println();
 		}
+		boolean taNaLista = false;
 		
-		// george remover - fim 
-		if (!hashEntidadesDatas.containsKey(entidade)){
-			hashEntidadesDatas.put(entidade, tagsTemporais);
-		}else{
-			ArrayList<String> datasAux = hashEntidadesDatas.get(entidade);
-			ArrayList<String> datasFinal = new ArrayList<>();
-			datasFinal.addAll(datasAux);
-			for (int k = 0; k < tagsTemporais.size(); k++){
-				if (!datasFinal.contains(tagsTemporais.get(k)) && !tagsTemporais.get(k).isEmpty()){
-					datasFinal.add(tagsTemporais.get(k));
+		for (int i = 0; i < entRemover.length ; i++ ){
+			if (entidade.equals(entRemover[i])){
+				taNaLista = true;
+			}
+		}
+		
+		if (!taNaLista){
+			// george remover - fim 
+			if (!hashEntidadesDatas.containsKey(entidade)){
+				hashEntidadesDatas.put(entidade, tagsTemporais);
+			}else{
+				ArrayList<String> datasAux = hashEntidadesDatas.get(entidade);
+				ArrayList<String> datasFinal = new ArrayList<>();
+				datasFinal.addAll(datasAux);
+				for (int k = 0; k < tagsTemporais.size(); k++){
+					if (!datasFinal.contains(tagsTemporais.get(k)) && !tagsTemporais.get(k).isEmpty()){
+						datasFinal.add(tagsTemporais.get(k));
+					}
 				}
+				
+				hashEntidadesDatas.put(entidade, datasFinal);
 			}
 			
-			hashEntidadesDatas.put(entidade, datasFinal);
 		}
 		
 		
@@ -653,19 +731,30 @@ public class RisoTotMain2 {
 
 	public static void addHashEntidadesDatasNaoNormalizadas(String entidade, ArrayList<String> tagsTemporais){
 		
-		if (!hashEntidadesDatasNaoNormalizadas.containsKey(entidade)){
-			hashEntidadesDatasNaoNormalizadas.put(entidade, tagsTemporais);
-		}else{
-			ArrayList<String> datasAux = hashEntidadesDatasNaoNormalizadas.get(entidade);
-			ArrayList<String> datasFinal = new ArrayList<>();
-			datasFinal.addAll(datasAux);
-			for (int k = 0; k < tagsTemporais.size(); k++){
-				if (!datasFinal.contains(tagsTemporais.get(k)) && !tagsTemporais.get(k).isEmpty()){
-					datasFinal.add(tagsTemporais.get(k));
+		boolean taNaLista = false;
+		
+		for (int i = 0; i < entRemover.length ; i++ ){
+			if (entidade.equals(entRemover[i])){
+				taNaLista = true;
+			}
+		}
+		
+		if (!taNaLista){
+			if (!hashEntidadesDatasNaoNormalizadas.containsKey(entidade)){
+				hashEntidadesDatasNaoNormalizadas.put(entidade, tagsTemporais);
+			}else{
+				ArrayList<String> datasAux = hashEntidadesDatasNaoNormalizadas.get(entidade);
+				ArrayList<String> datasFinal = new ArrayList<>();
+				datasFinal.addAll(datasAux);
+				for (int k = 0; k < tagsTemporais.size(); k++){
+					if (!datasFinal.contains(tagsTemporais.get(k)) && !tagsTemporais.get(k).isEmpty()){
+						datasFinal.add(tagsTemporais.get(k));
+					}
 				}
+				
+				hashEntidadesDatasNaoNormalizadas.put(entidade, datasFinal);
 			}
 			
-			hashEntidadesDatasNaoNormalizadas.put(entidade, datasFinal);
 		}
 		
 		
@@ -675,52 +764,77 @@ public class RisoTotMain2 {
 		
 		if (entidade.equals("Napoleon")){
 			System.out.println();
-		}		
-		if (!hashEntidadesDatas.containsKey(entidade)){
-			for (int i = 0; i < tagsTemporais.size(); i++){
-				if (entidadesTempDBPedia.contains(getDataSemTag(tagsTemporais.get(i)))){
-					//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(tagsTemporais.get(i));
-					ArrayList<String> listaTemporalFormatada = DBPediaDAO.buscaDataEntidades(tagsTemporais.get(i));
-					
-					// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(tagsTemporais.get(i), listaEntidadesTemporalizadas);
-					// ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
-
-					addHashEntidadesDatas(entidade, listaTemporalFormatada);	
-				}else{
-					ArrayList<String> listaAux = new ArrayList<String>();
-					listaAux.add(tagsTemporais.get(i));
-					addHashEntidadesDatas(entidade, listaAux);					
-					
-				}
-			}
-		}else{
-			ArrayList<String> datasAux = hashEntidadesDatas.get(entidade);
-			ArrayList<String> datasFinal = new ArrayList<>();
-			datasFinal.addAll(datasAux);
-			for (int k = 0; k < tagsTemporais.size(); k++){
-				if (!datasFinal.contains(tagsTemporais.get(k)) && !tagsTemporais.get(k).isEmpty()){
-					datasFinal.add(tagsTemporais.get(k));
-				}
-			}
-			
-			for (int i = 0; i < datasFinal.size(); i++){
-				if (entidadesTempDBPedia.contains(getDataSemTag(datasFinal.get(i)))){
-					ArrayList<String> listaTemporalFormatada = DBPediaDAO.buscaDataEntidades(datasFinal.get(i));
-//					ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(datasFinal.get(i), listaEntidadesTemporalizadas);
-//					ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
-
-					addHashEntidadesDatas(entidade, listaTemporalFormatada);					
-				}else{
-					ArrayList<String> listaAux = new ArrayList<String>();
-					listaAux.add(datasFinal.get(i));
-					addHashEntidadesDatas(entidade, listaAux);					
-					
-				}
-			}
-			
-			
-			// hashEntidadesDatas.put(entidade, datasFinal);
 		}
+		boolean taNaLista = false;
+		
+		for (int i = 0; i < entRemover.length ; i++ ){
+			if (entidade.equals(entRemover[i])){
+				taNaLista = true;
+			}
+		}
+		
+		if (!taNaLista){
+			if (!hashEntidadesDatas.containsKey(entidade)){
+				for (int i = 0; i < tagsTemporais.size(); i++){
+					if (entidadesTempDBPedia.contains(getDataSemTag(tagsTemporais.get(i)))){
+						//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(tagsTemporais.get(i));
+						ArrayList<String> listaTemporalFormatada = DBPediaDAO.buscaDataEntidades(tagsTemporais.get(i));
+						
+						// ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(tagsTemporais.get(i), listaEntidadesTemporalizadas);
+						// ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
+
+						addHashEntidadesDatas(entidade, listaTemporalFormatada);
+						addHashEntidadesDatasNaoNormalizadas(entidade, listaTemporalFormatada);
+					}else{
+						ArrayList<String> listaAux = new ArrayList<String>();
+						listaAux.add(tagsTemporais.get(i));
+						addHashEntidadesDatas(entidade, listaAux);
+						
+						ArrayList<String> listaAuxNaoNormalizada = new ArrayList<String>();
+						listaAuxNaoNormalizada.add(tagsTemporais.get(i));
+						
+						addHashEntidadesDatasNaoNormalizadas(entidade, listaAuxNaoNormalizada);
+
+						
+					}
+				}
+			}else{
+				ArrayList<String> datasAux = hashEntidadesDatas.get(entidade);
+				ArrayList<String> datasFinal = new ArrayList<>();
+				datasFinal.addAll(datasAux);
+				for (int k = 0; k < tagsTemporais.size(); k++){
+					if (!datasFinal.contains(tagsTemporais.get(k)) && !tagsTemporais.get(k).isEmpty()){
+						datasFinal.add(tagsTemporais.get(k));
+					}
+				}
+				
+				for (int i = 0; i < datasFinal.size(); i++){
+					if (entidadesTempDBPedia.contains(getDataSemTag(datasFinal.get(i)))){
+						ArrayList<String> listaTemporalFormatada = DBPediaDAO.buscaDataEntidades(datasFinal.get(i));
+//						ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(datasFinal.get(i), listaEntidadesTemporalizadas);
+//						ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaTempoEntidade);
+
+						addHashEntidadesDatas(entidade, listaTemporalFormatada);					
+						addHashEntidadesDatasNaoNormalizadas(entidade, listaTemporalFormatada);
+					}else{
+						ArrayList<String> listaAux = new ArrayList<String>();
+						listaAux.add(datasFinal.get(i));
+						addHashEntidadesDatas(entidade, listaAux);					
+						
+						ArrayList<String> listaAuxNaoNormalizada = new ArrayList<String>();
+						listaAuxNaoNormalizada.add(datasFinal.get(i));
+						
+						addHashEntidadesDatasNaoNormalizadas(entidade, listaAuxNaoNormalizada);
+
+					}
+				}
+				
+				
+				// hashEntidadesDatas.put(entidade, datasFinal);
+			}
+			
+		}
+		
 		
 		
 	}
@@ -1018,7 +1132,292 @@ public class RisoTotMain2 {
 		
 	}
 	
+	public static void removeFalsosPositivosRegra1 (String entidade, String fraseComMarcacao, String fraseSemMarcacao){
+		ArrayList<String> partesFrase = retornaFraseEmPartes(fraseComMarcacao);
+		ArrayList<String >listaDatas = retornaDatasFrase(getFraseSemTags(fraseSemMarcacao), new ArrayList<String>(), false);								
 
+		
+		ArrayList<String> listaDatasEntidade = hashEntidadesDatasNaoNormalizadas.get(entidade);
+		ArrayList<String> listaDatasEntidadeNorm = hashEntidadesDatas.get(entidade);
+		
+		ArrayList<String> listaDatasRemover = new ArrayList<String>();
+		ArrayList<String> listaDatasRemoverNorm = new ArrayList<String>();
+		ArrayList<String> novaLista = new ArrayList<String>();
+		ArrayList<String> novaListaNorm = new ArrayList<String>();
+		
+		
+		if (fraseComMarcacao.toLowerCase().indexOf("and/cc") >= 0){
+			System.out.println();
+		}
+			
+		
+		String[] partesAnd = fraseComMarcacao.toLowerCase().split("and/cc|but/cc");
+		
+		String parteEntidadeSemMarcacao  = "";
+		String parteDataSemMarcacao = "";
+		String parteEntidadeComMarcacao  = "";
+		String parteDataComMarcacao = "";
+		
+		
+		if (listaDatasEntidade != null){
+			for (int i = 0; i < listaDatasEntidade.size(); i++){
+				String data = listaDatasEntidade.get(i);
+				String dataNorm = listaDatasEntidadeNorm.get(i);
+				
+				for (int j = 0; j < partesAnd.length;j++){
+					
+					String parte = partesAnd[j];
+					String parteSemMarcaco = getFraseSemTags(parte);
+
+					if(partesAnd[j].indexOf(entidade.toLowerCase()) >=0 ||partesAnd[j].indexOf(entidade.toLowerCase().replace(" ", "_")) >=0){
+						parteEntidadeSemMarcacao = parteSemMarcaco;
+						parteEntidadeComMarcacao = parte;
+					
+						
+					}
+					if (partesAnd[j].indexOf(data.toLowerCase()) >=0 ){
+						parteDataSemMarcacao = parteSemMarcaco;
+						parteDataComMarcacao = parte;
+					}
+					
+					
+					
+				}
+				
+				if (!parteDataComMarcacao.equals(parteEntidadeComMarcacao) && !parteDataComMarcacao.isEmpty()){
+					
+					if (!fraseSemVerbo(parteDataComMarcacao) && !fraseSemEntidade(parteDataComMarcacao, parteDataSemMarcacao)){
+						
+						
+						listaDatasRemover.add(data);
+						listaDatasRemoverNorm.add(dataNorm);
+						
+					}
+					
+				}
+
+			}
+			
+			for (int i = 0; i < listaDatasEntidade.size(); i++){
+				String dataAux = listaDatasEntidade.get(i);
+				
+				boolean adiciona = true;
+				for (int j = 0; j < listaDatasRemover.size(); j++){
+					String dataRemover = listaDatasRemover.get(j);
+					
+					
+					if (dataAux.equals(dataRemover)){
+						adiciona = false;
+						
+					}
+				}
+				if (adiciona)
+					novaLista.add(dataAux);
+			}
+		
+			for (int i = 0; i < listaDatasEntidadeNorm.size(); i++){
+				String dataAuxNorm = listaDatasEntidadeNorm.get(i);
+				
+				boolean adiciona = true;
+				for (int j = 0; j < listaDatasRemoverNorm.size(); j++){
+					String dataRemoverNorm = listaDatasRemoverNorm.get(j);
+					
+					
+					if (dataAuxNorm.equals(dataRemoverNorm)){
+						adiciona = false;
+						
+					}
+				}
+				if (adiciona)
+					novaListaNorm.add(dataAuxNorm);
+			}
+		
+			
+		}
+		
+		
+		
+//		if (listaDatasEntidade != null){
+//			for (int i = 0; i < listaDatasEntidade.size(); i++){
+//				
+//				String data = listaDatasEntidade.get(i);
+//				String dataNorm = listaDatasEntidadeNorm.get(i);
+//				
+//				if (fraseComMarcacao.indexOf(data) >= 0){
+//					
+//					for (int j = 0; j < partesFrase.size(); j++){
+//						String parte = partesFrase.get(j);
+//						String parteSemMarcaco = getFraseSemTags(parte);
+//						
+//						
+//						if (parteSemMarcaco.indexOf(entidade) >=0 ||parteSemMarcaco.indexOf(entidade.replace(" ", "_")) >=0){
+//							parteEntidadeSemMarcacao = parteSemMarcaco;
+//							parteEntidadeComMarcacao = parte;
+//						}
+//						
+//						if (parteSemMarcaco.indexOf(data) >=0 ){
+//							parteDataSemMarcacao = parteSemMarcaco;
+//							parteDataComMarcacao = parte;
+//						}
+//					}
+//					
+//					if (!parteDataComMarcacao.equals(parteEntidadeComMarcacao)){
+//						
+//						if (!fraseSemVerbo(parteDataComMarcacao) && !fraseSemEntidade(parteDataComMarcacao, parteDataSemMarcacao)){
+//							
+//							
+//							listaDatasRemover.add(data);
+//							listaDatasRemoverNorm.add(dataNorm);
+//							
+//						}
+//						
+//					}
+//				}
+//				
+//			}			
+//			for (int i = 0; i < listaDatasEntidade.size(); i++){
+//				String dataAux = listaDatasEntidade.get(i);
+//				
+//				boolean adiciona = true;
+//				for (int j = 0; j < listaDatasRemover.size(); j++){
+//					String dataRemover = listaDatasRemover.get(j);
+//					
+//					
+//					if (dataAux.equals(dataRemover)){
+//						adiciona = false;
+//						
+//					}
+//				}
+//				if (adiciona)
+//					novaLista.add(dataAux);
+//			}
+//		
+//			for (int i = 0; i < listaDatasEntidadeNorm.size(); i++){
+//				String dataAuxNorm = listaDatasEntidadeNorm.get(i);
+//				
+//				boolean adiciona = true;
+//				for (int j = 0; j < listaDatasRemoverNorm.size(); j++){
+//					String dataRemoverNorm = listaDatasRemoverNorm.get(j);
+//					
+//					
+//					if (dataAuxNorm.equals(dataRemoverNorm)){
+//						adiciona = false;
+//						
+//					}
+//				}
+//				if (adiciona)
+//					novaListaNorm.add(dataAuxNorm);
+//			}
+//		
+//			
+//		}
+		
+		if (!novaLista.isEmpty()){
+			
+			hashEntidadesDatasNaoNormalizadas.put(entidade, novaLista);
+		}
+		
+		
+	}
+	public static void removeFalsosPositivos (String entidade, String fraseComMarcacao, String fraseSemMarcacao){
+		ArrayList<String> partesFrase = retornaFraseEmPartes(fraseComMarcacao);
+		ArrayList<String >listaDatas = retornaDatasFrase(getFraseSemTags(fraseSemMarcacao), new ArrayList<String>(), false);								
+
+		
+		ArrayList<String> listaDatasEntidade = hashEntidadesDatasNaoNormalizadas.get(entidade);
+		ArrayList<String> listaDatasEntidadeNorm = hashEntidadesDatas.get(entidade);
+		
+		ArrayList<String> listaDatasRemover = new ArrayList<String>();
+		ArrayList<String> listaDatasRemoverNorm = new ArrayList<String>();
+		ArrayList<String> novaLista = new ArrayList<String>();
+		ArrayList<String> novaListaNorm = new ArrayList<String>();
+		if (listaDatasEntidade != null){
+			for (int i = 0; i < listaDatasEntidade.size(); i++){
+				
+				String data = listaDatasEntidade.get(i);
+				String dataNorm = listaDatasEntidadeNorm.get(i);
+				
+				if (fraseComMarcacao.indexOf(data) >= 0){
+					String parteEntidadeSemMarcacao  = "";
+					String parteDataSemMarcacao = "";
+					String parteEntidadeComMarcacao  = "";
+					String parteDataComMarcacao = "";
+					
+					for (int j = 0; j < partesFrase.size(); j++){
+						String parte = partesFrase.get(j);
+						String parteSemMarcaco = getFraseSemTags(parte);
+						
+						
+						if (parteSemMarcaco.indexOf(entidade) >=0 ||parteSemMarcaco.indexOf(entidade.replace(" ", "_")) >=0){
+							parteEntidadeSemMarcacao = parteSemMarcaco;
+							parteEntidadeComMarcacao = parte;
+						}
+						
+						if (parteSemMarcaco.indexOf(data) >=0 ){
+							parteDataSemMarcacao = parteSemMarcaco;
+							parteDataComMarcacao = parte;
+						}
+					}
+					
+					if (!parteDataComMarcacao.equals(parteEntidadeComMarcacao)){
+						
+						if (!fraseSemVerbo(parteDataComMarcacao) && !fraseSemEntidade(parteDataComMarcacao, parteDataSemMarcacao)){
+							
+							
+							listaDatasRemover.add(data);
+							listaDatasRemoverNorm.add(dataNorm);
+							
+						}
+						
+					}
+				}
+				
+			}			
+			for (int i = 0; i < listaDatasEntidade.size(); i++){
+				String dataAux = listaDatasEntidade.get(i);
+				
+				boolean adiciona = true;
+				for (int j = 0; j < listaDatasRemover.size(); j++){
+					String dataRemover = listaDatasRemover.get(j);
+					
+					
+					if (dataAux.equals(dataRemover)){
+						adiciona = false;
+						
+					}
+				}
+				if (adiciona)
+					novaLista.add(dataAux);
+			}
+		
+			for (int i = 0; i < listaDatasEntidadeNorm.size(); i++){
+				String dataAuxNorm = listaDatasEntidadeNorm.get(i);
+				
+				boolean adiciona = true;
+				for (int j = 0; j < listaDatasRemoverNorm.size(); j++){
+					String dataRemoverNorm = listaDatasRemoverNorm.get(j);
+					
+					
+					if (dataAuxNorm.equals(dataRemoverNorm)){
+						adiciona = false;
+						
+					}
+				}
+				if (adiciona)
+					novaListaNorm.add(dataAuxNorm);
+			}
+		
+			
+		}
+		
+		if (!novaLista.isEmpty()){
+			
+			hashEntidadesDatasNaoNormalizadas.put(entidade, novaLista);
+		}
+		
+
+			
+	}
 	
 	private static void criaRelacionamentos(String nomeArquivoEntrada, String nomeArquivoOriginal, String nomeArquivoSemPrefixoExtensao){
 		for (int i = 0; i < listaFrasesTemporaisTexto.size(); i++){
@@ -1029,7 +1428,7 @@ public class RisoTotMain2 {
 			System.out.println("Processando: " + listaFrasesTemporaisTexto.get(i));
 			System.out.println("Frase sem tag: " + getFraseSemTags(listaFrasesTemporaisTexto.get(i)));
 			// george remover
-			if (listaFrasesTemporaisTexto.get(i).indexOf(("<RISOTime_type=Pre-EBT>On_10_August_1904</RISOTime> :/: the/DT <RISOTime_type=DE>Russia</RISOTime>n/NNP fleet/NN again/RB attempted/VBD to/TO break/VB out/VB and/CC proceed/VB to/TO <RISOTime_type=DE>Vladivostok</RISOTime> :/: but/CC upon/IN reaching/VBG the/DT open/JJ sea/NN were/VBD confronted/VBN by/IN Admiral/NNP <RISOTime_type=DE>Togo</RISOTime> battleship/NN squadron/NN")) >= 0){
+			if (listaFrasesTemporaisTexto.get(i).indexOf(("Louis_XVI")) >= 0){
 				System.out.println();
 			}
 			// george remover
@@ -1040,11 +1439,11 @@ public class RisoTotMain2 {
 			contaOcorrenciasTemporais = contaOcorrenciasTemporais - contaOcorrenciasTemporaisDE;
 			
 			
-			if ( getFraseSemTags(listaFrasesTemporaisTexto.get(i)).indexOf("associated wars") >= 0){
+			if ( getFraseSemTags(listaFrasesTemporaisTexto.get(i)).indexOf("Paul_Wolfowitz") >= 0){
 				System.out.println();
 			}
 			
-			if (listaFrasesTemporaisTexto.get(i).indexOf("<RISOTime_type=EPT-EMT>In_early_1813</RISOTime> :/: <RISOTime_type=DE>Prussia</RISOTime> and/CC <RISOTime_type=DE>Russia</RISOTime> joined/VBD forces/NNS to/TO fight/VB against/IN <RISOTime_type=DE>France</RISOTime> :/: with/IN the/DT <RISOTime_type=DE>Austria</RISOTime>ns/NNP also/RB joining/VBG this/DT <RISOTime_type=DE>Sixth_Coalition</RISOTime> <RISOTime_type=CE>later_in_the_year</RISOTime>")>= 0){
+			if (listaFrasesTemporaisTexto.get(i).indexOf("<RISOTime_type=Pre-EBT>By_12_September</RISOTime> :/: the/DT French/JJ with/IN assistance/NN from/IN the/DT British/JJ forces/NNS halted/VBN the/DT German/JJ advance/NN east/JJ of/IN <RISOTime_type=DE>Paris</RISOTime> at/IN the/DT First/NNP Battle/NNP of/IN the/DT Marne/NNP <RISOTime_type=EBT>5_September-12_September</RISOTime>")>= 0){
 				System.out.println();
 			}
 			switch (contaOcorrenciasTemporais) {
@@ -1068,6 +1467,8 @@ public class RisoTotMain2 {
 					for (int k = 0; k < tagsTemporais.size(); k++){
 						
 						addHashEntidadesDatas(listaEntidadesFrase.get(j), tagsTemporais);
+						addHashEntidadesDatasNaoNormalizadas(listaEntidadesFrase.get(j), tagsTemporais);
+						
 						
 					}
 					
@@ -1587,20 +1988,21 @@ public class RisoTotMain2 {
 							addHashEntidadesDatas(entidade, listaDatasPresentesEmPartesComDataAux, listaEntDBPedia);
 							
 							if (contaOcorrenciasDatasTotal(frase, listaEntidadesAuxDatasEmSequencia) == contaOcorrenciasDE(frase, listaEntidadesAuxDatasEmSequencia)){
+								if (listaEntDBPedia.contains(getDataSemTag(entidade))){
+									
+									// ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
+									ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
+
+									//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
+									//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
+
+									addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);
+									addHashEntidadesDatasNaoNormalizadas(entidade, listaEntidadesTemporalizadas);
+									
+								}
 								
 							}
 							
-							if (listaEntDBPedia.contains(getDataSemTag(entidade))){
-								
-								// ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidade);
-								ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidade);
-
-								//ArrayList<String> listaTempoEntidade = DBPediaDAO.montaEstruturaTemporal(entidade, listaEntidadesTemporalizadas);
-								//ArrayList<String> listaTemporalFormatada = DBPediaDAO.formataEntidadesFinal(listaEntidadesTemporalizadas);
-
-								addHashEntidadesDatas(entidade, listaEntidadesTemporalizadas);
-								
-							}
 							
 						}
 						listaEntidadesAux = new ArrayList<String>();
@@ -1715,6 +2117,13 @@ public class RisoTotMain2 {
 //					
 //				}
 				
+				ArrayList<String> listaEntidadesAux = getEntidadesFrases(getFraseSemTags(frase), listaFrasesTemporaisTextoSemMarcacao.get(i));
+				
+				for (String entidade : listaEntidadesAux){
+					removeFalsosPositivosRegra1(entidade, frase, listaFrasesTemporaisTextoSemMarcacao.get(i));
+					
+				}
+				
 				break;
 			}
 			
@@ -1722,6 +2131,7 @@ public class RisoTotMain2 {
 	    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMddHHmmss");
 		String nomeArquivo = "Entidades_Datas_"+dt.format(new Date())+".csv";
 
+		System.out.println("Criando aquivo"); // george remover
         File file = new File("C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\"+nomeArquivo);  
         long begin = System.currentTimeMillis();  
         BufferedWriter writer;
@@ -1730,13 +2140,18 @@ public class RisoTotMain2 {
 			
 			
 			for (String entity : hashEntidadesDatas.keySet()) {
+				System.out.println("Escrevendo entidade: " + entity); // george remover
 				String line = entity + ";|";
 				String datasNaoNormalizadas = ""; 
 				
+				if (entity.equals("Letizia Ramolino")){
+					System.out.println();
+				}
 				int cnt = 0;
 		        for (String data : hashEntidadesDatas.get(entity)){
 		        	cnt++;
 		        	
+					System.out.println("Escrevendo data: " + data); // george remover
 		        	if (!data.isEmpty()){
 		        		
 		        		String dataNormalizada = DBPediaDAO.buscaDataNormalizada(getDataSemTag(data), nomeArquivoOriginal, data, entity);
@@ -1759,6 +2174,7 @@ public class RisoTotMain2 {
 			    		}
 			        	
 			        	// inclusao na ontologia - inicio
+						System.out.println("Escreve ontologia: " + data); // george remover
 			    		JenaOWL jena2 = new JenaOWL();
 			    		OntModel model2;
 			    		// try {
@@ -1771,6 +2187,7 @@ public class RisoTotMain2 {
 			    		if (model2.toString().indexOf(dataNormalizada) == -1){
 				    		model2 = jena2.criaOntologia("/c/en/"+entity, "/r/HasDate ","/c/en/"+dataNormalizada, model2);			    			
 			    		}
+			    		
 			    		// model2.write(System.out);
 			    		FileOutputStream out2;
 			    		try {
@@ -1854,11 +2271,14 @@ public class RisoTotMain2 {
 	        
 	        
 	        
+			System.out.println("Escreve II "); // george remover
 			for (String entity : hashEntidadesDatas.keySet()) {
+				System.out.println("Escreve entidade II: " + entity); // george remover
 				
 				int cnt = 0;
 		        for (String data : hashEntidadesDatas.get(entity)){
 		        	cnt++;
+					System.out.println("Escreve data II: " + data); // george remover
 		        	
 		        	if (!data.isEmpty()){
 		        		
@@ -1871,6 +2291,7 @@ public class RisoTotMain2 {
 		        		
 			        	dataNormalizada = dataNormalizada.replace("[?]", "__");
 			        	// inclusao na ontologia - inicio
+						System.out.println("Escreve ontologia II: " + data); // george remover
 			    		JenaOWL jena2 = new JenaOWL();
 			    		OntModel model2;
 			    		// try {
@@ -1896,6 +2317,7 @@ public class RisoTotMain2 {
 				    		model2 = jena2.criaOntologia("/c/en/"+entity, "/r/HasDate ","/c/en/"+dataNormalizada, model2);			    			
 			    		}
 			    		// model2.write(System.out);
+						System.out.println("Escreve no arquivo II: " + nomeArquivoSemCaminho); // george remover
 			    		FileOutputStream out2;
 			    		try {
 			    			File arquivoSaida = new File("C:\\Users\\george.marcelo.alves\\Documents\\RDF_RISOTCG\\"+nomeArquivoSemCaminho);
@@ -2079,10 +2501,10 @@ public class RisoTotMain2 {
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_RussoJap.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_TesteProfessor.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
-		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_Napoleon_final.txt";
-		String nomeArquivoSemMarcacao = "C:\\Users\\george.marcelo.alves\\Dropbox\\Documentos_MoutyLingua\\Napoleon.txt";
-		String nomeArquivoOriginal = "Napoleon.txt";
-		String nomeArquivoSemPrefixo = "Napoleon";
+		String nomeArquivoSemMarcacao = "C:\\Users\\george.marcelo.alves\\Dropbox\\DocumentosSemMarcacao\\07_IraqWar.sgm";
+		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_IraqWar_final_filtro.txt";
+		String nomeArquivoOriginal = "07_IraqWar.sgm";
+		String nomeArquivoSemPrefixo = "IraqWar";
 		
 		
 		

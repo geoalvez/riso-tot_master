@@ -941,6 +941,9 @@ public class DBPediaDAO {
 	
 	public static ArrayList buscaDataEntidades(String entidade){
 		
+		if (entidade.equals("Letizia Ramolino")){
+			System.out.println();
+		}
 		PreparedStatement pstm = null;
 		Statement stm = null;
 		Connection con = null;

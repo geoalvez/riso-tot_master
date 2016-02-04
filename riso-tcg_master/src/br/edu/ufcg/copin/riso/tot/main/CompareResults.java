@@ -6,10 +6,14 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import sun.text.normalizer.Trie.DataManipulate;
 
+import br.edu.ufcg.copin.riso.tot.entities.Documento;
 import br.edu.ufcg.copin.riso.tot.utils.RisoTcgUtil;
 
 public class CompareResults {
@@ -27,6 +31,9 @@ public class CompareResults {
 		double qtdTotalSemDBP = 0;
 		double qtdAcertosNormalizadoSemDBP = 0;
 		double qtdAcertosNaoNormalizadoSemDBP = 0;
+		HashMap<String, Integer> listaQtd = new HashMap<String, Integer>();
+		HashMap<String, Integer> listaQtdNDB = new HashMap<String, Integer>();
+		HashMap<String, ArrayList<String>> mapNaoAchou = new HashMap<String, ArrayList<String>>();
 		
 		//for (int i = 0; i < args.length; i++){
 			
@@ -46,8 +53,10 @@ public class CompareResults {
 				   if (linha.split(";").length != 5){
 					   continue;
 				   }
-				   
-				   if (linha.indexOf("Napoleon") < 0){
+
+
+// descomentar para filtrar
+				   if (linha.indexOf("WW1") < 0){
 					   continue;
 				   }
 				   
@@ -83,7 +92,138 @@ public class CompareResults {
 					   String arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-1];
 					   if (new File(diretorioArquivoResultados + arquivoRecente).isDirectory()){
 						   arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-2];
+						   if (arquivoRecente.indexOf("bkp") >= 0){
+							   arquivoRecente = arquivosEntidadesDatas[arquivosEntidadesDatas.length-3];							   
+						   }
 					   }
+					   
+					   if (!listaQtd.containsKey(nomeTexto)){
+						   BufferedReader brCount = new BufferedReader(new InputStreamReader(new FileInputStream(diretorioArquivoResultados + arquivoRecente),"Cp1252"));
+						   while (brCount.ready()){
+							   String linhaCount = brCount.readLine();
+							   if (linhaCount.indexOf("Napoleonic Wars") >= 0){
+								   System.out.println();
+							   }
+							   String[] campos = linhaCount.split("\\;");
+							   String datasNorm = campos[1];
+							   String datasNaoNorm = campos[2];
+							   //TODO
+							   
+							   String entidadeVerifica = campos[0];
+							   
+							   boolean achou = false;
+								BufferedReader brVerifica = new BufferedReader(new FileReader(caminhoMarcacaoManual));
+								while(brVerifica.ready()){
+									   String linhaVerifica = brVerifica.readLine();
+									   
+									   if (linhaVerifica.indexOf(";"+entidadeVerifica+";") >= 0){
+										   
+										   achou = true;
+										   break;
+									   }
+									
+								}
+								
+								if (!achou){
+									if (!mapNaoAchou.containsKey(nomeTexto)){
+										ArrayList<String> arrayAux = new ArrayList<String>();
+										
+										String linhaAux = nomeTexto + ";" + "X" + ";" + entidadeVerifica + ";";
+										String[] datasNormList = datasNorm.split("\\|");
+										String[] datasNaoNormList = datasNaoNorm.split("\\|");
+										
+										int count = 0;
+										for (String dataNormAux : datasNormList){
+											String linhaInd = linhaAux + "";
+											
+											if (!dataNormAux.isEmpty()){
+												linhaInd = linhaInd+dataNormAux+";";
+											}
+											if (!datasNaoNormList[count].isEmpty()){
+												linhaInd = linhaInd+datasNaoNormList[count];												
+											}
+											count++;
+											
+											if (!linhaInd.equals(linhaAux)){
+												arrayAux.add(linhaInd);												
+												mapNaoAchou.put(nomeTexto, arrayAux);
+											}
+										}
+										
+										
+									}else{
+										
+										ArrayList<String>  listaAùx = mapNaoAchou.get(nomeTexto);
+										String linhaAux = nomeTexto + ";" + "X" + ";" + entidadeVerifica + ";";
+										String[] datasNormList = datasNorm.split("\\|");
+										String[] datasNaoNormList = datasNaoNorm.split("\\|");
+										
+										int count = 0;
+										for (String dataNormAux : datasNormList){
+											String linhaInd = linhaAux + "";
+											
+											if (!dataNormAux.isEmpty()){
+												linhaInd = linhaInd+dataNormAux+";";
+											}
+											if (!datasNaoNormList[count].isEmpty()){
+												linhaInd = linhaInd+datasNaoNormList[count];												
+											}
+											count++;
+											if (!linhaInd.equals(linhaAux)){
+												listaAùx.add(linhaInd);												
+												mapNaoAchou.put(nomeTexto, listaAùx);
+											}
+										}										
+									}
+								}
+							   
+							   
+							   String[] datasList = datasNorm.split("\\|");
+							   int qtdDatasNorm = datasList.length - 1;
+							   int qtdNaoNorm = 0;
+							   for (int i = 0; i < datasList.length; i++){
+								   String data = datasList[i];
+								   if (data.split("-").length == 5 || data.split("-").length == 3){
+									   if (datasNaoNorm.indexOf(data) < 0){
+										   qtdNaoNorm++;
+									   }
+								   }
+							   }
+							   
+							   // n norm
+							   if (!listaQtdNDB.containsKey(nomeTexto)){
+								   
+								   listaQtdNDB.put(nomeTexto, qtdNaoNorm);
+							   }else{
+								   Integer qtdExistente = listaQtdNDB.get(nomeTexto);
+								   Integer qtdFinal = qtdExistente + qtdNaoNorm;
+								   
+								   listaQtdNDB.put(nomeTexto, qtdFinal);
+								   
+							   }
+							   
+							   
+							   // n norm
+							   if (!listaQtd.containsKey(nomeTexto)){
+								   
+								   listaQtd.put(nomeTexto, qtdDatasNorm);
+							   }else{
+								   Integer qtdExistente = listaQtd.get(nomeTexto);
+								   Integer qtdFinal = qtdExistente + qtdDatasNorm;
+								   
+								   listaQtd.put(nomeTexto, qtdFinal);
+								   
+							   }
+							   
+							   
+						   }
+						   brCount.close();
+						   
+					   }
+					   if (linha.indexOf("miles west of San Diego") >= 0){
+						   System.out.println();
+					   }
+					   
 						BufferedReader brAut = new BufferedReader(new InputStreamReader(new FileInputStream(diretorioArquivoResultados + arquivoRecente),"Cp1252"));
 						boolean achouNorm = false;
 						boolean achouNaoNorm = false;
@@ -95,6 +235,9 @@ public class CompareResults {
 								System.out.println();
 							}
 							String linhaAux = brAut.readLine();
+							   if (linhaAux.indexOf("miles west of San Diego") >= 0){
+								   System.out.println();
+							   }
 							
 							if (linhaAux.indexOf("Egypt") >= 0){
 								System.out.println();
@@ -123,7 +266,7 @@ public class CompareResults {
 								String linhaFormataComZero = RisoTcgUtil.incluiZero(linhaOk);
 								String dataNormalizadaFormataComZero = RisoTcgUtil.incluiZero(dataNormalizada);
 								
-								if (linhaFormataComZero.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNormalizadaFormataComZero.trim()+"|") >= 0){
+								if (linhaFormataComZero.indexOf(entidade.trim()+";") >= 0 && linhaFormataComZero.indexOf("|"+dataNormalizadaFormataComZero.trim()+"|") >= 0){
 									achouNorm = true;
 									qtdAcertosNormalizado++;									
 									if (!dataNormalizada.equals(dataNaoNormalizada)){
@@ -214,7 +357,36 @@ public class CompareResults {
 			   System.out.println("% acertos norm (Sem DBPEdia)= " + (qtdAcertosNormalizadoSemDBP / qtdTotalSemDBP)*100+"%");
 			   System.out.println("% acertos ñ norm (Sem DBPEdia)= " + (qtdAcertosNaoNormalizadoSemDBP / qtdTotalSemDBP)*100+"%");
 				   
+			
+			   for (Entry<String, Integer> pair : listaQtd.entrySet()) {
+				   String documento = pair.getKey();
+				   Integer qtdDocumento = pair.getValue();
 				
+				   System.out.println("Qtd relacionamentos criados para documento ["+documento+"]: " + qtdDocumento);
+			   }
+			   for (Entry<String, Integer> pair : listaQtdNDB.entrySet()) {
+				   String documento = pair.getKey();
+				   Integer qtdDocumento = pair.getValue();
+				
+				   System.out.println("Qtd relacionamentos criados para documento ["+documento+"] (Excluindo DBPedia): " + qtdDocumento);
+			   }
+			   
+			   
+			   System.out.println("-------------");
+			   System.out.println("Entidades nao encontrou ");
+			   System.out.println("-------------");
+			   for (Entry<String, ArrayList<String>> pair : mapNaoAchou.entrySet()) {
+				   String documento = pair.getKey();
+				   ArrayList<String> listaNaoAchou = pair.getValue();
+				   System.out.println("Documento: " + documento);
+				   for (String entidadeNaoEncontrou : listaNaoAchou){
+					   System.out.println(entidadeNaoEncontrou);
+				   }
+				   
+			   }
+			   
+			   
+			   
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

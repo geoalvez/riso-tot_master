@@ -60,6 +60,17 @@ public class RisoTcgUtil {
 	public static String NOVEMBER = "11";
 	public static String DECEMBER = "12";
 	
+	public static boolean ehMes(String caracteres){
+		
+		for (int i = 0; i < MESES.length; i++){
+			if (caracteres.toLowerCase().equals(MESES[i].toLowerCase())){
+				return true;
+			}
+		}
+		return false;
+		
+		
+	}
 	public static String getNumMes(String mesAsString){
 		HashMap<String, String> hashMesNumMes= new HashMap<String, String>();
 		
@@ -158,6 +169,15 @@ public class RisoTcgUtil {
 			data = data.replace("-8-", "-08-");
 			data = data.replace("-9-", "-09-");
 
+			data = data.replace("|1-", "01-");
+			data = data.replace("|2-", "02-");
+			data = data.replace("|3-", "03-");
+			data = data.replace("|4-", "04-");
+			data = data.replace("|5-", "05-");
+			data = data.replace("|6-", "06-");
+			data = data.replace("|7-", "07-");
+			data = data.replace("|8-", "08-");
+			data = data.replace("|9-", "09-");
 			return data;
 			
 		}
