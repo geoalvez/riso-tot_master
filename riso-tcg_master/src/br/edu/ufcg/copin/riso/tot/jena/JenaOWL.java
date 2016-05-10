@@ -57,7 +57,7 @@ public class JenaOWL {
 		OntModel model2;
 		// try {
 		try {
-			model2 = jena2.lerOntologia(new File("C:\\workspace_mestrado\\riso-master\\reuters\\results\\111.txt").toURL().toString());
+			model2 = jena2.lerOntologia(new File("C:\\Users\\george.marcelo.alves\\git\\riso-master_git\\riso-master_ok\\reuters\\results\\111.txt").toURL().toString());
 		} catch (Exception e) {
 			model2 = jena2.criaOntologia("/c/en/Speedboat", null);
 		}

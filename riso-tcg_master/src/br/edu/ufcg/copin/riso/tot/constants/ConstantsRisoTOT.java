@@ -39,7 +39,7 @@ public class ConstantsRisoTOT {
 		return listaRetorno;
 	}
 	
-	public static final String CAMINHO_ARQUIVO_ENTIDADES_TEMPORALIZADAS = "C:\\workspace_mestrado\\RisoTemporalTagger_soprasubir\\padroes\\datas_especiais.xml";
+	public static final String CAMINHO_ARQUIVO_ENTIDADES_TEMPORALIZADAS = "C:\\Users\\george.marcelo.alves\\git\\RisoTemporalTagger_master\\RisoTemporalTagger_master\\padroes\\datas_especiais.xml";
 	
 	public static final String[] MESES = {"", "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"};
 

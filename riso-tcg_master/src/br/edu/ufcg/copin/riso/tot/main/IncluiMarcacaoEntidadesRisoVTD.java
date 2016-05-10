@@ -19,14 +19,14 @@ public class IncluiMarcacaoEntidadesRisoVTD {
 	
 	public static void main(String[] args) {
 		String caminhoArquivoEntidades = "C:\\Users\\george.marcelo.alves\\Dropbox\\SaidaMontyExtractor\\";
-		String caminhoArquivoOriginal = "C:\\Users\\george.marcelo.alves\\Dropbox\\Documentos_MoutyLingua\\";
+		String caminhoArquivoOriginal = "C:\\Users\\george.marcelo.alves\\Dropbox\\RisoTT_Saida\\AmCivWar.txt";
 		String caminhoArquivoSaida = "C:\\Users\\george.marcelo.alves\\Dropbox\\RisoTT_Saida\\";
 		String EXTESAO = ".txt";
 		
 		System.out.println("Nome do arquivo de entidades: ");
 		Scanner sc1 = new Scanner(System.in); 
 		String nomeArquivo = sc1.next();
-		String nomeArquivoOriginal = nomeArquivo;
+		//String nomeArquivoOriginal = nomeArquivo;
 
 		
 		//equanto houver mais linhas
@@ -62,7 +62,7 @@ public class IncluiMarcacaoEntidadesRisoVTD {
 			}
 			
 
-			File arquivoOriginal = new File (caminhoArquivoOriginal + nomeArquivoOriginal  + EXTESAO);
+			File arquivoOriginal = new File (caminhoArquivoOriginal);
 			
 			FileReader fr1 = new FileReader( arquivoOriginal );
 			BufferedReader br1 = new BufferedReader( fr1 );
@@ -149,7 +149,7 @@ public class IncluiMarcacaoEntidadesRisoVTD {
 //				}
 //				
 				if (entidadesOrdenadas.get(i).toString().indexOf(".") == -1){
-					conteudoArquivo = conteudoArquivo.replaceAll(entidadesOrdenadas.get(i).toString(), "["+entidadesOrdenadas.get(i).toStringSpecial()+"]");										
+					conteudoArquivo = conteudoArquivo.replaceAll(entidadesOrdenadas.get(i).toString(), "["+entidadesOrdenadas.get(i).toStringSpecial().replace("\\.", "***")+"]");										
 				}
 				
 			}
@@ -165,8 +165,12 @@ public class IncluiMarcacaoEntidadesRisoVTD {
 			BufferedWriter bw = new BufferedWriter(fw);
 			String[] linhas = conteudoArquivo.split("\\.");
 			for (int i = 0; i < linhas.length; i++){
-				bw.write(linhas[i] + System.getProperty("line.separator"));				
+				bw.write(linhas[i].replace("***", "\\.") + System.getProperty("line.separator"));
+				bw.flush();
 			}
+			bw.close();
+			
+			
 			
 			System.out.println("Fim!");
 		} catch (IOException e) {

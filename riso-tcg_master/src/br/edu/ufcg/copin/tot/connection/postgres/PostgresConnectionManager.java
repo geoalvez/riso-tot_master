@@ -15,7 +15,7 @@ public class PostgresConnectionManager {
 	
 	private static final String USERNAME = "postgres";
 	
-	private static final String PASSWORD = "Patchanka777";
+	private static final String PASSWORD = "postgres";
 
 	private ConnectionManager connectionManager;	
 

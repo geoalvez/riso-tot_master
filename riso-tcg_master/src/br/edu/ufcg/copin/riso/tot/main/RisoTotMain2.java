@@ -36,7 +36,7 @@ public class RisoTotMain2 {
 	private static String conteudo = "";
 	private static String conteudoSemMarcacao = "";
 
-	private static String[] entRemover = {"year","note","ft","next year","days","mi","uise","use","re","st","end of","DOC","unse","ve","DOCID"};
+	public static String[] entRemover = {"year","note","ft","next year","days","mi","uise","use","re","st","end of","DOC","unse","ve","DOCID", "usse"};
 	
 
 	private static String[] listaConjuncoes = {"and/CC","or/CC","but/CC"};
@@ -61,7 +61,7 @@ public class RisoTotMain2 {
 	
 	private static boolean verificaArquivoAnterior(int numInicio){
 		boolean retorno = true;
-		File dir = new File ("C:\\workspace_mestrado\\riso-tcg\\ctrl\\");
+		File dir = new File ("C:\\Users\\george.marcelo.alves\\git\\riso-tot_master\\riso-tcg_master\\ctrl\\");
 		for (File arquivo : dir.listFiles()){
 			int id = new Integer(arquivo.getName()).intValue();
 			if (id < numInicio){
@@ -77,7 +77,7 @@ public class RisoTotMain2 {
 	}
 	private static void addNoArquivoDatasEspeciaisRisoTT(ArrayList<String> listaEntidades, int numInicio) throws Exception{
 
-		File arquivoDeControle = new File ("C:\\workspace_mestrado\\riso-tcg\\ctrl\\" + numInicio);
+		File arquivoDeControle = new File ("C:\\Users\\george.marcelo.alves\\git\\riso-tot_master\\riso-tcg_master\\ctrl\\" + numInicio);
 		// boolean continua = true;
 		System.out.println("Aguardando arquivo de controle: " + new Date());
 		while (!verificaArquivoAnterior(numInicio)){
@@ -110,13 +110,13 @@ public class RisoTotMain2 {
 				
 				if (conteudoArquivo.indexOf("<expressao>\""+entidadeTexto+"\"</expressao>") < 0){
 					
-					BufferedWriter buffWrite = new BufferedWriter(new FileWriter("C:\\workspace_mestrado\\RisoTemporalTagger_soprasubir\\padroes\\datas_especiais.xml")); 
+					BufferedWriter buffWrite = new BufferedWriter(new FileWriter("C:\\Users\\george.marcelo.alves\\git\\RisoTemporalTagger_master\\RisoTemporalTagger_master\\padroes\\datas_especiais.xml")); 
 					buffWrite.write(conteudoArquivo + "    <expressao>\""+entidadeTexto+"\"</expressao>"+System.getProperty("line.separator") + "</simbolo>"); 
 //					buffWrite.flush();
 					buffWrite.close();
 					
 				}else{
-					BufferedWriter buffWrite = new BufferedWriter(new FileWriter("C:\\workspace_mestrado\\RisoTemporalTagger_soprasubir\\padroes\\datas_especiais.xml")); 
+					BufferedWriter buffWrite = new BufferedWriter(new FileWriter("C:\\Users\\george.marcelo.alves\\git\\RisoTemporalTagger_master\\RisoTemporalTagger_master\\padroes\\datas_especiais.xml")); 
 					buffWrite.write(conteudoArquivo + "</simbolo>"); 
 					// buffWrite.flush();
 					buffWrite.close();					
@@ -258,19 +258,6 @@ public class RisoTotMain2 {
 		
 		String fraseAux = frase + "";
 		for (int i =0; i < listaEntidadesTexto.size(); i++){
-			if (frase.indexOf("Louis XVI") >= 0){
-				if (listaEntidadesTexto.get(i).equals("Treaty of Amiens")){
-					System.out.println();
-				}
-				if (listaEntidadesTexto.get(i).equals("Amiens")){
-					System.out.println();				
-				}
-				if (listaEntidadesTexto.get(i).equals("Treaty")){
-					System.out.println();				
-				}
-				
-			}
-			
 			if (!listaEntidadesTexto.get(i).equals("type")){
 				if (fraseAux.indexOf(listaEntidadesTexto.get(i)) >= 0 || fraseAux.indexOf(listaEntidadesTexto.get(i).replace(" ", "_")) >= 0 ){
 					if (!RisoTcgUtil.ehMes(listaEntidadesTexto.get(i))){
@@ -440,8 +427,9 @@ public class RisoTotMain2 {
 				}
 				// george remover - fim 
 				
-				if (listaEntidadesDBPedia.contains(entidadeSemTag)){
+				if (!listaEntidadesDBPedia.contains(entidadeSemTag)){
 					
+					listaRetorno.add(entidade);					
 					if (recuperaDataDE){
 						//ArrayList<EntidadeEvento> listaEntidadesTemporalizadas = DBPediaDAO.getDatasEntidadesEventos(entidadeSemTag);
 						ArrayList<String> listaEntidadesTemporalizadas = DBPediaDAO.buscaDataEntidades(entidadeSemTag);
@@ -1439,7 +1427,7 @@ public class RisoTotMain2 {
 			contaOcorrenciasTemporais = contaOcorrenciasTemporais - contaOcorrenciasTemporaisDE;
 			
 			
-			if ( getFraseSemTags(listaFrasesTemporaisTexto.get(i)).indexOf("Paul_Wolfowitz") >= 0){
+			if ( getFraseSemTags(listaFrasesTemporaisTexto.get(i)).indexOf("Lincoln") >= 0){
 				System.out.println();
 			}
 			
@@ -2140,6 +2128,9 @@ public class RisoTotMain2 {
 			
 			
 			for (String entity : hashEntidadesDatas.keySet()) {
+				if (entity.indexOf("Lincoln") >= 0){
+					System.out.println();
+				}
 				System.out.println("Escrevendo entidade: " + entity); // george remover
 				String line = entity + ";|";
 				String datasNaoNormalizadas = ""; 
@@ -2181,11 +2172,11 @@ public class RisoTotMain2 {
 			    		try {
 			    			model2 = jena2.lerOntologia(new File("C:\\Users\\george.marcelo.alves\\Documents\\RDF_RISOTCG\\"+entity+".txt").toURL().toString());
 			    		} catch (Exception e) {
-			    			model2 = jena2.criaOntologia("/c/en/"+entity, null);
+			    			model2 = jena2.criaOntologia("/c/en/"+entity.replace(" ", "_"), null);
 			    		}
 			    		
 			    		if (model2.toString().indexOf(dataNormalizada) == -1){
-				    		model2 = jena2.criaOntologia("/c/en/"+entity, "/r/HasDate ","/c/en/"+dataNormalizada, model2);			    			
+				    		model2 = jena2.criaOntologia("/c/en/"+entity.replace(" ", "_"), "/r/HasDate ","/c/en/"+dataNormalizada, model2);			    			
 			    		}
 			    		
 			    		// model2.write(System.out);
@@ -2273,6 +2264,9 @@ public class RisoTotMain2 {
 	        
 			System.out.println("Escreve II "); // george remover
 			for (String entity : hashEntidadesDatas.keySet()) {
+				if (entity.indexOf("Lincoln") >= 0){
+					System.out.println();
+				}				
 				System.out.println("Escreve entidade II: " + entity); // george remover
 				
 				int cnt = 0;
@@ -2300,7 +2294,7 @@ public class RisoTotMain2 {
 			    			model2 = jena2.lerOntologia(new File("C:\\Users\\george.marcelo.alves\\Documents\\RDF_RISOTCG\\"+nomeArquivoSemCaminho).toURL().toString());
 			    			
 			    		} catch (Exception e) {
-			    			model2 = jena2.criaOntologia("/c/en/"+nomeArquivoSemCaminho, null);
+			    			model2 = jena2.criaOntologia("/c/en/"+nomeArquivoSemCaminho.replace(" ", "_"), null);
 			    		}
 			    		
 			    		dataNormalizada = dataNormalizada.replace(" < X < ", "_to_");
@@ -2313,9 +2307,9 @@ public class RisoTotMain2 {
 			    			
 			    		}
 			    		System.out.println(dataNormalizada);
-			    		if (model2.toString().indexOf(dataNormalizada) == -1){
-				    		model2 = jena2.criaOntologia("/c/en/"+entity, "/r/HasDate ","/c/en/"+dataNormalizada, model2);			    			
-			    		}
+			    		//if (model2.toString().indexOf(dataNormalizada) == -1){
+				    		model2 = jena2.criaOntologia("/c/en/"+entity.replace(" ", "_"), "/r/HasDate ","/c/en/"+dataNormalizada, model2);			    			
+			    		//}
 			    		// model2.write(System.out);
 						System.out.println("Escreve no arquivo II: " + nomeArquivoSemCaminho); // george remover
 			    		FileOutputStream out2;
@@ -2350,7 +2344,7 @@ public class RisoTotMain2 {
 	
 	private static void extracaoDeFrases(){
 		listaTodasAsFrasesTexto = conteudo.split("\\./.");
-		listaTodasAsFrasesTextoSemMarcacao = conteudoSemMarcacao.split("\\.");
+		listaTodasAsFrasesTextoSemMarcacao = conteudoSemMarcacao.split("\\.\\.\\.");
 		System.out.println("Texto possui ["+ (listaTodasAsFrasesTexto.length - 1) +"] frases.");
 		for (int i = 0; i < listaTodasAsFrasesTexto.length; i++){
 			String frase = listaTodasAsFrasesTexto[i];
@@ -2442,7 +2436,7 @@ public class RisoTotMain2 {
         try {
     		BufferedReader brSM = new BufferedReader(new InputStreamReader(new FileInputStream(nomeArquivoSemMarcacao),"UTF-8"));
 			while(brSM.ready()){   
-				conteudoSemMarcacao = conteudoSemMarcacao.concat(brSM.readLine()).concat(" ");   
+				conteudoSemMarcacao = conteudoSemMarcacao.concat(brSM.readLine()).concat("..");   
 			}
 			brSM.close();   		
 		} catch (IOException e) {
@@ -2501,10 +2495,10 @@ public class RisoTotMain2 {
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_RussoJap.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_TesteProfessor.txt";
 //		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_NapoleonReduzida.txt";
-		String nomeArquivoSemMarcacao = "C:\\Users\\george.marcelo.alves\\Dropbox\\DocumentosSemMarcacao\\07_IraqWar.sgm";
-		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_IraqWar_final_filtro.txt";
-		String nomeArquivoOriginal = "07_IraqWar.sgm";
-		String nomeArquivoSemPrefixo = "IraqWar";
+		String nomeArquivoSemMarcacao = "C:\\Users\\george.marcelo.alves\\Dropbox\\DocumentosSemMarcacao\\AmCivWar_marcado_aux.txt";
+		nomeArquivo = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_03_AmCivWar_final.txt";
+		String nomeArquivoOriginal = "03_AmCivWar.sgm";
+		String nomeArquivoSemPrefixo = "AmCivWar";
 		
 		
 		
@@ -2530,7 +2524,7 @@ public class RisoTotMain2 {
 
 					int inicio = new Integer(args[1]).intValue();
 					int fim = new Integer(args[2]).intValue();
-					File arquivoDeControle = new File("C:\\workspace_mestrado\\riso-tcg\\ctrl\\"+args[1]);
+					File arquivoDeControle = new File("C:\\Users\\george.marcelo.alves\\git\\riso-tot_master\\riso-tcg_master\\ctrl\\"+args[1]);
 					try {
 						arquivoDeControle.createNewFile();
 					} catch (IOException e1) {

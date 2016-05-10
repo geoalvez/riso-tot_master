@@ -56,14 +56,26 @@ public class CompareResults {
 
 
 // descomentar para filtrar
-				   if (linha.indexOf("WW1") < 0){
+				   if (linha.indexOf("FrenchRev") < 0){
 					   continue;
 				   }
+				   boolean taNaLista = false;
+				   
 				   
 				   String nomeTexto = linha.split(";")[0];
 				   String entidade  = linha.split(";")[2];
 				   String dataNormalizada = linha.split(";")[3];
 				   String dataNaoNormalizada = linha.split(";")[4];
+					for (int i = 0; i < RisoTotMain2.entRemover.length ; i++ ){
+						if (entidade.equals(RisoTotMain2.entRemover[i])){
+							taNaLista = true;
+						}
+					}
+					
+					if (taNaLista){
+						continue;
+					}
+
 				   qtdTotal++;
 				   
 				   if (!dataNormalizada.equals(dataNaoNormalizada)){
@@ -187,6 +199,10 @@ public class CompareResults {
 									   if (datasNaoNorm.indexOf(data) < 0){
 										   qtdNaoNorm++;
 									   }
+								   }else{
+									   if (data.split("-").length != 5 && data.split("-").length != 3 && !data.isEmpty()){
+										   qtdNaoNorm++;										   
+									   }
 								   }
 							   }
 							   
@@ -250,64 +266,74 @@ public class CompareResults {
 							String datasNormalizadasAut = linhaAux.split(";")[1];
 							String datasNaoNormalizadasAut = linhaAux.split(";")[2];
 							
+							if (entidade.equals("Korea") && entidadeAut.equals("Korea") && dataNormalizada.equals("02-10-1950")){
+								System.out.println();
+							}
+							
 							String linhaOk = entidadeAut + ";"+"|"+datasNormalizadasAut+"|"+";"+"|"+datasNaoNormalizadasAut+"|";
 							
 							if (linhaOk.indexOf("Joséphine") >= 0){
 								System.out.println();
 							}
-							if (linhaOk.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNormalizada.trim()+"|") >= 0){
-								qtdAcertosNormalizado++;
-								achouNorm = true;
-							   if (!dataNormalizada.equals(dataNaoNormalizada)){
-								   qtdAcertosNormalizadoSemDBP++;
-							   }
-								
-							}else{
-								String linhaFormataComZero = RisoTcgUtil.incluiZero(linhaOk);
-								String dataNormalizadaFormataComZero = RisoTcgUtil.incluiZero(dataNormalizada);
-								
-								if (linhaFormataComZero.indexOf(entidade.trim()+";") >= 0 && linhaFormataComZero.indexOf("|"+dataNormalizadaFormataComZero.trim()+"|") >= 0){
+							if (!achouNorm){
+								if (linhaOk.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNormalizada.trim()+"|") >= 0){
+									qtdAcertosNormalizado++;
 									achouNorm = true;
-									qtdAcertosNormalizado++;									
-									if (!dataNormalizada.equals(dataNaoNormalizada)){
-										qtdAcertosNormalizadoSemDBP++;
-									}
-								}
-								
-								
-							}
-							
-							if (linhaOk.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNaoNormalizada.trim()+"|") >= 0){
-								qtdAcertosNaoNormalizado++;
-								achouNaoNorm = true;
-							   if (!dataNormalizada.equals(dataNaoNormalizada)){
-								   qtdAcertosNaoNormalizadoSemDBP++;
-							   }
-							}else{
-								if (RisoTcgUtil.validaSemPreposicoes(linhaOk, entidade, dataNaoNormalizada)){
-									qtdAcertosNaoNormalizado++;
-									achouNaoNorm = true;
-									if (!dataNormalizada.equals(dataNaoNormalizada)){
-										qtdAcertosNaoNormalizadoSemDBP++;
-									}
+								   if (!dataNormalizada.equals(dataNaoNormalizada)){
+									   qtdAcertosNormalizadoSemDBP++;
+								   }
 									
 								}else{
+									String linhaFormataComZero = RisoTcgUtil.incluiZero(linhaOk);
+									String dataNormalizadaFormataComZero = RisoTcgUtil.incluiZero(dataNormalizada);
 									
-									String  datasNaoNormalizadasAux = linhaOk.split("\\;")[2];
-									String[] listaDatasNormalizadasAux = datasNaoNormalizadasAux.split("\\|");
-									for (int i = 0; i < listaDatasNormalizadasAux.length; i++){
-										if (linhaOk.indexOf(entidade.trim()+";") >= 0 && listaDatasNormalizadasAux[i].indexOf(dataNaoNormalizada) >= 0 && !listaDatasNormalizadasAux[i].isEmpty()){
-											qtdAcertosNaoNormalizado++;
-											achouNaoNorm = true;
-											if (!dataNormalizada.equals(dataNaoNormalizada)){
-												qtdAcertosNaoNormalizadoSemDBP++;
-											}
-											break;
+									if (linhaFormataComZero.indexOf(entidade.trim()+";") >= 0 && linhaFormataComZero.indexOf("|"+dataNormalizadaFormataComZero.trim()+"|") >= 0){
+										achouNorm = true;
+										qtdAcertosNormalizado++;									
+										if (!dataNormalizada.equals(dataNaoNormalizada)){
+											qtdAcertosNormalizadoSemDBP++;
 										}
 									}
 									
+									
 								}
+								
 							}
+							if (!achouNaoNorm){
+								if (linhaOk.indexOf(entidade.trim()+";") >= 0 && linhaOk.indexOf("|"+dataNaoNormalizada.trim()+"|") >= 0){
+									qtdAcertosNaoNormalizado++;
+									achouNaoNorm = true;
+								   if (!dataNormalizada.equals(dataNaoNormalizada)){
+									   qtdAcertosNaoNormalizadoSemDBP++;
+								   }
+								}else{
+									if (RisoTcgUtil.validaSemPreposicoes(linhaOk, entidade, dataNaoNormalizada)){
+										qtdAcertosNaoNormalizado++;
+										achouNaoNorm = true;
+										if (!dataNormalizada.equals(dataNaoNormalizada)){
+											qtdAcertosNaoNormalizadoSemDBP++;
+										}
+										
+									}else{
+										
+										String  datasNaoNormalizadasAux = linhaOk.split("\\;")[2];
+										String[] listaDatasNormalizadasAux = datasNaoNormalizadasAux.split("\\|");
+										for (int i = 0; i < listaDatasNormalizadasAux.length; i++){
+											if (linhaOk.indexOf(entidade.trim()+";") >= 0 && listaDatasNormalizadasAux[i].indexOf(dataNaoNormalizada) >= 0 && !listaDatasNormalizadasAux[i].isEmpty()){
+												qtdAcertosNaoNormalizado++;
+												achouNaoNorm = true;
+												if (!dataNormalizada.equals(dataNaoNormalizada)){
+													qtdAcertosNaoNormalizadoSemDBP++;
+												}
+												break;
+											}
+										}
+										
+									}
+								}
+								
+							}
+							
 							
 							if (achouNorm || achouNaoNorm){
 								break;

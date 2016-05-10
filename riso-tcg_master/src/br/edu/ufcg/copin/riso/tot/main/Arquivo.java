@@ -13,6 +13,7 @@ public class Arquivo {
 
 		String path = "C:\\Users\\george.marcelo.alves\\Dropbox\\RISOTCG_saida\\saidaUnificada_RussoJap_linhas.txt";
 
+		//
 		BufferedReader buffRead;
 		try {
 			buffRead = new BufferedReader(new FileReader(path));

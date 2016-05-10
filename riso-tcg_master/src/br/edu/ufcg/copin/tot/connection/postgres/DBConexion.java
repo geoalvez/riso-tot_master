@@ -21,7 +21,7 @@ public class DBConexion {
 			//cpds.setJdbcUrl("jdbc:postgresql://localhost:5432/jwnl");
 			cpds.setJdbcUrl("jdbc:postgresql://localhost:5432/postgres");
 			cpds.setUser("postgres");
-			cpds.setPassword("Patchanka777");
+			cpds.setPassword("postgres");
 			cpds.setCheckoutTimeout(50000);
 			cpds.setIdleConnectionTestPeriod(500000);
 			cpds.setMaxPoolSize(5);
